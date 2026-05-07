@@ -70,6 +70,23 @@
   git add '--pathspec-from-file=./GIT/add.list'
 #+end_src
 
+** Do both
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/update.sh
+  cd "$(dirname -- "${0}")"
+  ./rm.sh
+  ./add.sh
+  cd '../'
+  git status
+#+end_src
+
+** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
+  cd "$(dirname -- "${0}")/.."
+  "${HOME}/SSH/K/P/setup.sh"
+  git commit -m 'More refinement of git scripts'
+  git push
+#+end_src
+
 ** COMMENT Run the script
 
 *** Add and status
@@ -77,8 +94,13 @@
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "
-      './GIT/add.sh'
-      './GIT/rm.sh'
-      git status
+      './GIT/update.sh'
+  " "log" "err")
+#+end_src
+
+*** Commit and push
+#+begin_src emacs-lisp :results silent
+  (async-shell-command "
+      './GIT/commit_and_push.sh'
   " "log" "err")
 #+end_src
