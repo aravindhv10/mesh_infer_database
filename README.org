@@ -1,0 +1,62 @@
+* Cargo.toml
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  [package]
+  name = "mesh_infer_database"
+  version = "0.1.0"
+  edition = "2024"
+
+  [dependencies]
+  iceoryx2 = { version = "0.8.1", features = ["std"] }
+  loro = "1.12.0"
+  mimalloc = "0.1.50"
+#+end_src
+
+* GIT Scripts
+
+** Ignore
+#+begin_src conf :mkdirp yes :tangle ./.gitignore
+  /Cargo.lock
+  /GIT/
+  /target/
+#+end_src
+
+** To remove
+
+*** List
+#+begin_src conf :mkdirp yes :tangle ./GIT/rm.list
+  README.org~
+  tmp.sh
+#+end_src
+
+*** Script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/rm.sh
+  cd "$(dirname -- "${0}")/.."
+  sed 's@^@"./@g ; s@$@"@g' './GIT/rm.list' | tr '\n' ' ' | sed 's@^@"rm" "-vf" "--" @g' | sh
+#+end_src
+
+** To add
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/add.list
+  Cargo.toml
+  README.org
+  src/main.rs
+  .gitignore
+#+end_src
+
+*** Script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/add.sh
+  cd "$(dirname -- "${0}")/.."
+  git add '--pathspec-from-file=./GIT/add.list'
+#+end_src
+
+** COMMENT Run the script
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      './GIT/add.sh'
+      './GIT/rm.sh'
+      git status
+  " "log" "err")
+#+end_src
