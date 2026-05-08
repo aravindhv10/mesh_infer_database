@@ -1,7 +1,17 @@
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
-fn main() {
+fn run_sender() -> anyhow::Result<()> {
+    eprintln!("run_sender");
+    Ok(())
+}
+
+fn run_receiver() -> anyhow::Result<()> {
+    eprintln!("run_receiver");
+    Ok(())
+}
+
+fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
     match args.len() {
@@ -14,17 +24,36 @@ fn main() {
         _ => {
             match args[1].as_str() {
                 "send" => {
-                    eprint!("Operating on send mode");
+                    return run_sender();
                 }
                 "receive" => {
-                    eprint!("Operating on receive mode");
+                    return run_receiver();
                 }
                 _ => {
-                    eprint!("Unknown mode");
+                    let mut child_send = std::process::Command::new(args[0].as_str())
+                        .arg("send")
+                        .spawn()?;
+
+                    let mut child_receive = std::process::Command::new(args[0].as_str())
+                        .arg("receive")
+                        .spawn()?;
+
+                    let status_send = child_send.wait()?;
+                    let status_receive = child_receive.wait()?;
+
+                    if !status_send.success() {
+                        eprintln!("Sender failed");
+                    }
+
+                    if !status_receive.success() {
+                        eprintln!("Receiver failed");
+                    }
                 }
             };
         }
     };
 
     println!("Hello, world!");
+
+    Ok(())
 }
