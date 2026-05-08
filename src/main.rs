@@ -11,6 +11,29 @@ fn run_receiver() -> anyhow::Result<()> {
     Ok(())
 }
 
+fn run_both(self_path: &str) -> anyhow::Result<()> {
+    let mut child_send = std::process::Command::new(self_path).arg("send").spawn()?;
+
+    let mut child_receive = std::process::Command::new(self_path)
+        .arg("receive")
+        .spawn()?;
+
+    let status_send = child_send.wait()?;
+    let status_receive = child_receive.wait()?;
+
+    if !status_send.success() {
+        eprintln!("Sender failed");
+        return Err(anyhow::format_err!("Sender failed"));
+    }
+
+    if !status_receive.success() {
+        eprintln!("Receiver failed");
+        return Err(anyhow::format_err!("Receiver failed"));
+    }
+
+    return Ok(());
+}
+
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
@@ -19,7 +42,7 @@ fn main() -> anyhow::Result<()> {
             eprintln!("Bad command line array");
         }
         1 => {
-            eprintln!("Need atleast 1 commandline argument {}", args[0]);
+            return run_both(/*self_path: &str =*/ args[0].as_str());
         }
         _ => {
             match args[1].as_str() {
@@ -30,24 +53,7 @@ fn main() -> anyhow::Result<()> {
                     return run_receiver();
                 }
                 _ => {
-                    let mut child_send = std::process::Command::new(args[0].as_str())
-                        .arg("send")
-                        .spawn()?;
-
-                    let mut child_receive = std::process::Command::new(args[0].as_str())
-                        .arg("receive")
-                        .spawn()?;
-
-                    let status_send = child_send.wait()?;
-                    let status_receive = child_receive.wait()?;
-
-                    if !status_send.success() {
-                        eprintln!("Sender failed");
-                    }
-
-                    if !status_receive.success() {
-                        eprintln!("Receiver failed");
-                    }
+                    return run_both(/*self_path: &str =*/ args[0].as_str());
                 }
             };
         }
