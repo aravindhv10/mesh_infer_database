@@ -1,15 +1,39 @@
 * Cargo.toml
+
+** Basic headers
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   [package]
   name = "mesh_infer_database"
   version = "0.1.0"
   edition = "2024"
+#+end_src
 
+** Dependencies
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   [dependencies]
+#+end_src
+
+*** Standard
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   anyhow = "1.0.102"
-  iceoryx2 = { version = "0.8.1", features = ["std"] }
   loro = "1.12.0"
   mimalloc = "0.1.50"
+#+end_src
+
+*** All iceoryx2 related
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  iceoryx2-log = { workspace = true, features = ["std"] }
+  iceoryx2-services-discovery = { workspace = true, features = ["std"] }
+  iceoryx2 = { workspace = true, features = ["std"] }
+  iceoryx2-cal = { workspace = true, features = ["std"] }
+  iceoryx2-bb-loggers = { workspace = true, features = ["std", "console"]}
+  iceoryx2-bb-concurrency = { workspace = true, features = ["std"] }
+  iceoryx2-bb-container = { workspace = true, features = ["std"] }
+  iceoryx2-bb-derive-macros = { workspace = true, features = ["std"] }
+  iceoryx2-bb-elementary = { workspace = true, features = ["std"] }
+  iceoryx2-bb-elementary-traits = { workspace = true }
+  iceoryx2-bb-system-types = { workspace = true, features = ["std"] }
+  iceoryx2-bb-posix = { workspace = true, features = ["std"] }
 #+end_src
 
 * Script to build

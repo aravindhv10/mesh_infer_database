@@ -2,6 +2,7 @@
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 use iceoryx2::prelude::ZeroCopySend;
+// use iceoryx2::prelude::*;
 
 #[derive(ZeroCopySend, Debug)]
 #[repr(C)]
@@ -26,6 +27,7 @@ fn run_sender() -> anyhow::Result<()> {
         .service_builder(&servicename)
         .publish_subscribe::<message>()
         .open_or_create()?;
+
     Ok(())
 }
 
