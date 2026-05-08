@@ -1,8 +1,8 @@
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
-use iceoryx2::prelude::ZeroCopySend;
-// use iceoryx2::prelude::*;
+// use iceoryx2::prelude::ZeroCopySend;
+use iceoryx2::prelude::*;
 
 #[derive(ZeroCopySend, Debug)]
 #[repr(C)]
@@ -26,7 +26,9 @@ fn run_sender() -> anyhow::Result<()> {
     let service = node
         .service_builder(&servicename)
         .publish_subscribe::<message>()
-        .open_or_create()?;
+        .open_or_create()?
+        .publisher_builder()
+        .create()?;
 
     Ok(())
 }
