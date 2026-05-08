@@ -23,19 +23,26 @@ fn run_sender() -> anyhow::Result<()> {
     eprintln!("run_sender");
     let (node, servicename) = get_node()?;
 
-    let service = node
+    let publisher = node
         .service_builder(&servicename)
         .publish_subscribe::<message>()
         .open_or_create()?
         .publisher_builder()
         .create()?;
 
+    let sample = publisher.loan_uninit()?;
+
+    let res = sample.write_payload(message { data: 123 as i128 }).send()?;
+
+    eprintln!("Wrote size {}", res);
+
     Ok(())
 }
 
 fn run_receiver() -> anyhow::Result<()> {
     eprintln!("run_receiver");
-    let node = get_node()?;
+    let (node, servicename) = get_node()?;
+
     Ok(())
 }
 
