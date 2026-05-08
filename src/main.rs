@@ -1,15 +1,22 @@
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
+fn get_node() -> anyhow::Result<iceoryx2::node::Node<iceoryx2::service::ipc::Service>> {
+    let node = iceoryx2::node::NodeBuilder::new().create::<iceoryx2::service::ipc::Service>()?;
+    return Ok(node);
+}
+
 fn run_sender() -> anyhow::Result<()> {
     eprintln!("run_sender");
-    let node = iceoryx2::node::NodeBuilder::new().create::<iceoryx2::service::ipc::Service>()?;
+    // let node = iceoryx2::node::NodeBuilder::new().create::<iceoryx2::service::ipc::Service>()?;
+    let node = get_node()?;
 
     Ok(())
 }
 
 fn run_receiver() -> anyhow::Result<()> {
     eprintln!("run_receiver");
+    let node = get_node()?;
     Ok(())
 }
 
