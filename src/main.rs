@@ -1,16 +1,31 @@
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
-fn get_node() -> anyhow::Result<iceoryx2::node::Node<iceoryx2::service::ipc::Service>> {
+use iceoryx2::prelude::ZeroCopySend;
+
+#[derive(ZeroCopySend, Debug)]
+#[repr(C)]
+struct message {
+    data: i128,
+}
+
+fn get_node() -> anyhow::Result<(
+    iceoryx2::node::Node<iceoryx2::service::ipc::Service>,
+    iceoryx2::service::service_name::ServiceName,
+)> {
     let node = iceoryx2::node::NodeBuilder::new().create::<iceoryx2::service::ipc::Service>()?;
-    return Ok(node);
+    let servicename = iceoryx2::service::service_name::ServiceName::new("testing")?;
+    return Ok((node, servicename));
 }
 
 fn run_sender() -> anyhow::Result<()> {
     eprintln!("run_sender");
-    // let node = iceoryx2::node::NodeBuilder::new().create::<iceoryx2::service::ipc::Service>()?;
-    let node = get_node()?;
+    let (node, servicename) = get_node()?;
 
+    let service = node
+        .service_builder(&servicename)
+        .publish_subscribe::<message>()
+        .open_or_create()?;
     Ok(())
 }
 
