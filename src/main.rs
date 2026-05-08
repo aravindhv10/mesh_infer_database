@@ -43,6 +43,24 @@ fn run_receiver() -> anyhow::Result<()> {
     eprintln!("run_receiver");
     let (node, servicename) = get_node()?;
 
+    let subscriber = node
+        .service_builder(&servicename)
+        .publish_subscribe::<message>()
+        .open_or_create()?
+        .subscriber_builder()
+        .create()?;
+
+    let res = subscriber.receive()?;
+
+    match res {
+        Some(o) => {
+            eprintln!("Received message {}", o.data);
+        }
+        None => {
+            eprint!("Did not receive any message");
+        }
+    }
+
     Ok(())
 }
 
