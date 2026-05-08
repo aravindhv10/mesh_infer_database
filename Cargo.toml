@@ -9,15 +9,13 @@ anyhow = "1.0.102"
 loro = "1.12.0"
 mimalloc = "0.1.50"
 
-iceoryx2-log = { workspace = true, features = ["std"] }
-iceoryx2-services-discovery = { workspace = true, features = ["std"] }
-iceoryx2 = { workspace = true, features = ["std"] }
-iceoryx2-cal = { workspace = true, features = ["std"] }
-iceoryx2-bb-loggers = { workspace = true, features = ["std", "console"]}
-iceoryx2-bb-concurrency = { workspace = true, features = ["std"] }
-iceoryx2-bb-container = { workspace = true, features = ["std"] }
-iceoryx2-bb-derive-macros = { workspace = true, features = ["std"] }
-iceoryx2-bb-elementary = { workspace = true, features = ["std"] }
-iceoryx2-bb-elementary-traits = { workspace = true }
-iceoryx2-bb-system-types = { workspace = true, features = ["std"] }
-iceoryx2-bb-posix = { workspace = true, features = ["std"] }
+iceoryx2-bb-concurrency = { version = "0.8.1", features = ["std"] }
+iceoryx2-bb-container = "0.8.1"
+iceoryx2-bb-derive-macros = "0.8.1"
+iceoryx2-bb-elementary-traits = "0.8.1"
+iceoryx2-bb-elementary = { version = "0.8.1", features = ["std"] }
+iceoryx2-bb-posix = { version = "0.8.1", features = ["std"] }
+iceoryx2-bb-system-types = "0.8.1"
+iceoryx2-cal = { version = "0.8.1", features = ["std"] }
+iceoryx2-log = { version = "0.8.1", features = ["std"] }
+iceoryx2 = { version = "0.8.1", features = ["std"] }

@@ -22,19 +22,28 @@
 
 *** All iceoryx2 related
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
-  iceoryx2-log = { workspace = true, features = ["std"] }
-  iceoryx2-services-discovery = { workspace = true, features = ["std"] }
-  iceoryx2 = { workspace = true, features = ["std"] }
-  iceoryx2-cal = { workspace = true, features = ["std"] }
-  iceoryx2-bb-loggers = { workspace = true, features = ["std", "console"]}
-  iceoryx2-bb-concurrency = { workspace = true, features = ["std"] }
-  iceoryx2-bb-container = { workspace = true, features = ["std"] }
-  iceoryx2-bb-derive-macros = { workspace = true, features = ["std"] }
-  iceoryx2-bb-elementary = { workspace = true, features = ["std"] }
-  iceoryx2-bb-elementary-traits = { workspace = true }
-  iceoryx2-bb-system-types = { workspace = true, features = ["std"] }
-  iceoryx2-bb-posix = { workspace = true, features = ["std"] }
+  iceoryx2-bb-concurrency = { version = "0.8.1", features = ["std"] }
+  iceoryx2-bb-container = "0.8.1"
+  iceoryx2-bb-derive-macros = "0.8.1"
+  iceoryx2-bb-elementary-traits = "0.8.1"
+  iceoryx2-bb-elementary = { version = "0.8.1", features = ["std"] }
+  iceoryx2-bb-posix = { version = "0.8.1", features = ["std"] }
+  iceoryx2-bb-system-types = "0.8.1"
+  iceoryx2-cal = { version = "0.8.1", features = ["std"] }
+  iceoryx2-log = { version = "0.8.1", features = ["std"] }
+  iceoryx2 = { version = "0.8.1", features = ["std"] }
 #+end_src
+
+cargo add   iceoryx2-log -F std
+cargo add   iceoryx2  -F std
+cargo add   iceoryx2-cal  -F std
+cargo add   iceoryx2-bb-concurrency  -F std
+cargo add   iceoryx2-bb-container
+cargo add   iceoryx2-bb-derive-macros
+cargo add   iceoryx2-bb-elementary  -F std
+cargo add   iceoryx2-bb-elementary-traits
+cargo add   iceoryx2-bb-system-types
+cargo add   iceoryx2-bb-posix  -F std
 
 * Script to build
 
