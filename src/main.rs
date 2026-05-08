@@ -3,6 +3,8 @@ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 fn run_sender() -> anyhow::Result<()> {
     eprintln!("run_sender");
+    let node = iceoryx2::node::NodeBuilder::new().create::<iceoryx2::service::ipc::Service>()?;
+
     Ok(())
 }
 
