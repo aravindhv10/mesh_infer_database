@@ -30,6 +30,8 @@ fn run_sender() -> anyhow::Result<()> {
         .publisher_builder()
         .create()?;
 
+    std::thread::sleep(std::time::Duration::from_secs(1));
+
     let sample = publisher.loan_uninit()?;
 
     let res = sample.write_payload(message { data: 123 as i128 }).send()?;
@@ -56,6 +58,8 @@ fn run_receiver() -> anyhow::Result<()> {
         .open_or_create()?
         .listener_builder()
         .create()?;
+
+    std::thread::sleep(std::time::Duration::from_secs(1));
 
     let res = listener.timed_wait_one(std::time::Duration::from_secs(5))?;
 
