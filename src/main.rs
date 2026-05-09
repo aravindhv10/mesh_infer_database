@@ -191,7 +191,9 @@ impl dir_watcher {
                 let name = event.name;
                 match name {
                     Some(o) => {
-                        ret.insert(o.to_string_lossy().to_string());
+                        ret.insert(
+                            path_dir_prefix_input + "/" + o.to_string_lossy().to_string().as_str(),
+                        );
                     }
                     None => {
                         // eprint!("Got unnamed notification...");
@@ -208,7 +210,7 @@ fn main() -> anyhow::Result<()> {
     let mut watched = dir_watcher::new("/dev/shm".to_string())?;
     loop {
         for i in watched.get_files()? {
-            eprint!("Found file {}", i);
+            eprintln!("Found file {}", i);
         }
     }
     return Ok(());
