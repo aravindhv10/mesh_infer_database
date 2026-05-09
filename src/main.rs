@@ -131,5 +131,5 @@ fn iceoryx2_main() -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
-    iceoryx2_main()
+    return Ok(());
 }

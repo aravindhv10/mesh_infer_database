@@ -17,6 +17,7 @@
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   anyhow = "1.0.102"
   filesentry = "0.2.2"
+  inotify = "0.11.1"
   loro = "1.12.0"
   mimalloc = "0.1.50"
 #+end_src
