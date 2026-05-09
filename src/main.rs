@@ -141,5 +141,14 @@ fn main() -> anyhow::Result<()> {
             | inotify::WatchMask::MOVED_TO,
     )?;
 
+    let mut buffer: Vec<u8> = vec![0; 1 << 21];
+
+    loop {
+        let events = notify.read_events_blocking(buffer.as_mut_slice())?;
+
+        for event in events {
+            let name = event.name;
+        }
+    }
     return Ok(());
 }
