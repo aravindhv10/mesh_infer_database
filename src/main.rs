@@ -100,7 +100,7 @@ fn run_both(self_path: &str) -> anyhow::Result<()> {
     return Ok(());
 }
 
-fn main() -> anyhow::Result<()> {
+fn iceoryx2_main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
     match args.len() {
@@ -128,4 +128,8 @@ fn main() -> anyhow::Result<()> {
     println!("Hello, world!");
 
     Ok(())
+}
+
+fn main() -> anyhow::Result<()> {
+    iceoryx2_main()
 }
