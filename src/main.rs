@@ -205,35 +205,11 @@ impl dir_watcher {
 }
 
 fn main() -> anyhow::Result<()> {
-    let mut notify = inotify::Inotify::init()?;
-
-    let res = notify.watches().add(
-        "/dev/shm",
-        inotify::WatchMask::ATTRIB
-            | inotify::WatchMask::CLOSE_WRITE
-            | inotify::WatchMask::CLOSE_NOWRITE
-            | inotify::WatchMask::MOVED_TO,
-    )?;
-
-    let mut buffer: Vec<u8> = vec![0; 1 << 21];
-
+    let mut watched = dir_watcher::new("/dev/shm".to_string())?;
     loop {
-        // eprintln!("Starting the notify loop");
-        let events = notify.read_events_blocking(buffer.as_mut_slice())?;
-        // eprintln!("Got events...");
-
-        for event in events {
-            let name = event.name;
-            match name {
-                Some(o) => {
-                    eprintln!("got file name {}", o.to_string_lossy());
-                }
-                None => {
-                    // eprint!("Got unnamed notification...");
-                }
-            };
+        for i in watched.get_files()? {
+            eprint!("Found file {}", i);
         }
     }
-
     return Ok(());
 }
