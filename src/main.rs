@@ -50,6 +50,15 @@ fn run_receiver() -> anyhow::Result<()> {
         .subscriber_builder()
         .create()?;
 
+    let listener = node
+        .service_builder(&servicename)
+        .event()
+        .open_or_create()?
+        .listener_builder()
+        .create()?;
+
+    let res = listener.timed_wait_one(std::time::Duration::from_secs(5))?;
+
     let res = subscriber.receive()?;
 
     match res {
