@@ -144,11 +144,22 @@ fn main() -> anyhow::Result<()> {
     let mut buffer: Vec<u8> = vec![0; 1 << 21];
 
     loop {
+        // eprintln!("Starting the notify loop");
         let events = notify.read_events_blocking(buffer.as_mut_slice())?;
+        // eprintln!("Got events...");
 
         for event in events {
             let name = event.name;
+            match name {
+                Some(o) => {
+                    eprintln!("got file name {}", o.to_string_lossy());
+                }
+                None => {
+                    // eprint!("Got unnamed notification...");
+                }
+            };
         }
     }
+
     return Ok(());
 }
