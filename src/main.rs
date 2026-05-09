@@ -192,7 +192,9 @@ impl dir_watcher {
                 match name {
                     Some(o) => {
                         ret.insert(
-                            path_dir_prefix_input + "/" + o.to_string_lossy().to_string().as_str(),
+                            self.path_dir_prefix_input.clone()
+                                + "/"
+                                + o.to_string_lossy().to_string().as_str(),
                         );
                     }
                     None => {
