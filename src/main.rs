@@ -1,6 +1,8 @@
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
+use std::any::Any;
+
 // use iceoryx2::prelude::ZeroCopySend;
 use iceoryx2::prelude::*;
 
@@ -128,6 +130,34 @@ fn iceoryx2_main() -> anyhow::Result<()> {
     println!("Hello, world!");
 
     Ok(())
+}
+
+struct dir_watcher {
+    notify: inotify::Inotify,
+    watchdescriptor: inotify::WatchDescriptor,
+    buffer: Vec<u8>,
+}
+
+impl dir_watcher {
+    fn new(path_dir_prefix_input: &str) -> anyhow::Result<Self> {
+        let mut notify = inotify::Inotify::init()?;
+
+        let watchdescriptor = notify.watches().add(
+            path_dir_prefix_input,
+            inotify::WatchMask::ATTRIB
+                | inotify::WatchMask::CLOSE_WRITE
+                | inotify::WatchMask::CLOSE_NOWRITE
+                | inotify::WatchMask::MOVED_TO,
+        )?;
+
+        let buffer: Vec<u8> = vec![0; 1 << 21];
+
+        Ok(Self {
+            notify: notify,
+            watchdescriptor: watchdescriptor,
+            buffer: buffer,
+        })
+    }
 }
 
 fn main() -> anyhow::Result<()> {
