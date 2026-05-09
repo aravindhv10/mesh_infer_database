@@ -168,6 +168,18 @@ impl dir_watcher {
             std::collections::HashSet::new();
 
         if self.first_run {
+            let dir_read = std::fs::read_dir(self.path_dir_prefix_input.as_str())?;
+            for file in dir_read {
+                match file {
+                    Ok(o) => {
+                        ret.insert(o.path().to_string_lossy().to_string());
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to read the file due to {}", e);
+                    }
+                };
+            }
+            self.first_run = false;
         } else {
             // eprintln!("Starting the notify loop");
             let events = self
