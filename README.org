@@ -103,6 +103,7 @@ cargo add   iceoryx2-bb-posix  -F std
   GIT/rm.sh
   GIT/update.sh
   README.org
+  src/dir_watcher/mod.rs
   src/main.rs
 #+end_src
 
@@ -125,7 +126,7 @@ cargo add   iceoryx2-bb-posix  -F std
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
   cd "$(dirname -- "${0}")/.."
   "${HOME}/SSH/K/P/setup.sh"
-  git commit -m 'More refinement of git scripts'
+  git commit -m 'Some cleanups and reorg'
   git push
 #+end_src
 

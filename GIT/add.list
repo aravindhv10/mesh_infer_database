@@ -9,4 +9,5 @@ GIT/rm.list
 GIT/rm.sh
 GIT/update.sh
 README.org
+src/dir_watcher/mod.rs
 src/main.rs
