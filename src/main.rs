@@ -136,14 +136,16 @@ struct dir_watcher {
     notify: inotify::Inotify,
     watchdescriptor: inotify::WatchDescriptor,
     buffer: Vec<u8>,
+    path_dir_prefix_input: std::string::String,
+    first_run: bool,
 }
 
 impl dir_watcher {
-    fn new(path_dir_prefix_input: &str) -> anyhow::Result<Self> {
+    fn new(path_dir_prefix_input: std::string::String) -> anyhow::Result<Self> {
         let mut notify = inotify::Inotify::init()?;
 
         let watchdescriptor = notify.watches().add(
-            path_dir_prefix_input,
+            path_dir_prefix_input.as_str(),
             inotify::WatchMask::ATTRIB
                 | inotify::WatchMask::CLOSE_WRITE
                 | inotify::WatchMask::CLOSE_NOWRITE
@@ -156,7 +158,37 @@ impl dir_watcher {
             notify: notify,
             watchdescriptor: watchdescriptor,
             buffer: buffer,
+            path_dir_prefix_input: path_dir_prefix_input,
+            first_run: true,
         })
+    }
+
+    fn get_files(&mut self) -> anyhow::Result<std::collections::HashSet<std::string::String>> {
+        let mut ret: std::collections::HashSet<std::string::String> =
+            std::collections::HashSet::new();
+
+        if self.first_run {
+        } else {
+            // eprintln!("Starting the notify loop");
+            let events = self
+                .notify
+                .read_events_blocking(self.buffer.as_mut_slice())?;
+            // eprintln!("Got events...");
+
+            for event in events {
+                let name = event.name;
+                match name {
+                    Some(o) => {
+                        ret.insert(o.to_string_lossy().to_string());
+                    }
+                    None => {
+                        // eprint!("Got unnamed notification...");
+                    }
+                };
+            }
+        }
+
+        return Ok(ret);
     }
 }
 
