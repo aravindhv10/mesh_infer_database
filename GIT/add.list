@@ -1,0 +1,12 @@
+build/debug.sh
+build/release.sh
+Cargo.toml
+GIT/add.list
+GIT/add.sh
+GIT/commit_and_push.sh
+.gitignore
+GIT/rm.list
+GIT/rm.sh
+GIT/update.sh
+README.org
+src/main.rs

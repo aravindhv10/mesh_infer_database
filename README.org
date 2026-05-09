@@ -70,8 +70,8 @@ cargo add   iceoryx2-bb-posix  -F std
 ** Ignore
 #+begin_src conf :mkdirp yes :tangle ./.gitignore
   /Cargo.lock
-  /GIT/
   /target/
+  /src/watch.rs
 #+end_src
 
 ** To remove
@@ -95,7 +95,13 @@ cargo add   iceoryx2-bb-posix  -F std
   build/debug.sh
   build/release.sh
   Cargo.toml
+  GIT/add.list
+  GIT/add.sh
+  GIT/commit_and_push.sh
   .gitignore
+  GIT/rm.list
+  GIT/rm.sh
+  GIT/update.sh
   README.org
   src/main.rs
 #+end_src
