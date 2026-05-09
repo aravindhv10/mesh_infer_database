@@ -131,5 +131,15 @@ fn iceoryx2_main() -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
+    let mut notify = inotify::Inotify::init()?;
+
+    let res = notify.watches().add(
+        "/dev/shm",
+        inotify::WatchMask::ATTRIB
+            | inotify::WatchMask::CLOSE_WRITE
+            | inotify::WatchMask::CLOSE_NOWRITE
+            | inotify::WatchMask::MOVED_TO,
+    )?;
+
     return Ok(());
 }
