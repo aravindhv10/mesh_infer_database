@@ -7,24 +7,22 @@ pub struct dir_watcher {
 }
 
 impl dir_watcher {
-    pub fn new(path_dir_prefix_input: std::string::String) -> anyhow::Result<Self> {
-        let mut notify = inotify::Inotify::init()?;
+    pub fn new(path_dir_prefix_input: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
+        let notify = inotify::Inotify::init()?;
 
         let watchdescriptor = notify.watches().add(
-            path_dir_prefix_input.as_str(),
+            path_dir_prefix_input.as_ref(),
             inotify::WatchMask::ATTRIB
                 | inotify::WatchMask::CLOSE_WRITE
                 | inotify::WatchMask::CLOSE_NOWRITE
                 | inotify::WatchMask::MOVED_TO,
         )?;
 
-        let buffer: Vec<u8> = vec![0; 1 << 21];
-
         Ok(Self {
             notify: notify,
             watchdescriptor: watchdescriptor,
-            buffer: buffer,
-            path_dir_prefix_input: std::path::PathBuf::from(path_dir_prefix_input),
+            buffer: vec![0; 1 << 21],
+            path_dir_prefix_input: path_dir_prefix_input.as_ref().to_path_buf(),
             first_run: true,
         })
     }
