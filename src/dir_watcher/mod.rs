@@ -27,22 +27,32 @@ impl dir_watcher {
         })
     }
 
+    pub fn get_all_files(
+        &mut self,
+        ret: &mut std::collections::HashSet<std::path::PathBuf>,
+    ) -> anyhow::Result<()> {
+        let dir_read = std::fs::read_dir(&(self.path_dir_prefix_input))?;
+
+        for file in dir_read {
+            match file {
+                Ok(o) => {
+                    ret.insert(o.path());
+                }
+                Err(e) => {
+                    eprintln!("Failed to read the file due to {}", e);
+                }
+            };
+        }
+
+        return Ok(());
+    }
+
     pub fn get_files(&mut self) -> anyhow::Result<std::collections::HashSet<std::path::PathBuf>> {
         let mut ret: std::collections::HashSet<std::path::PathBuf> =
             std::collections::HashSet::new();
 
         if self.first_run {
-            let dir_read = std::fs::read_dir(&(self.path_dir_prefix_input))?;
-            for file in dir_read {
-                match file {
-                    Ok(o) => {
-                        ret.insert(o.path());
-                    }
-                    Err(e) => {
-                        eprintln!("Failed to read the file due to {}", e);
-                    }
-                };
-            }
+            self.get_all_files(&mut ret);
             self.first_run = false;
         } else {
             // eprintln!("Starting the notify loop");

@@ -138,7 +138,7 @@ fn main() -> anyhow::Result<()> {
     let mut watched = dir_watcher::dir_watcher::new("/dev/shm".to_string())?;
     loop {
         for i in watched.get_files()? {
-            eprintln!("Found file {}", i);
+            eprintln!("Found file {}", i.to_str().unwrap_or("NO PATH FOUND"));
         }
     }
     return Ok(());
