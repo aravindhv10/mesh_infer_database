@@ -47,31 +47,36 @@ impl dir_watcher {
         return Ok(());
     }
 
+    pub fn get_new_files(
+        &mut self,
+        ret: &mut std::collections::HashSet<std::path::PathBuf>,
+    ) -> anyhow::Result<()> {
+        let events = self
+            .notify
+            .read_events_blocking(self.buffer.as_mut_slice())?;
+
+        for event in events {
+            let name = event.name;
+            match name {
+                Some(o) => {
+                    ret.insert(self.path_dir_prefix_input.join(o));
+                }
+                None => {}
+            };
+        }
+
+        return Ok(());
+    }
+
     pub fn get_files(&mut self) -> anyhow::Result<std::collections::HashSet<std::path::PathBuf>> {
         let mut ret: std::collections::HashSet<std::path::PathBuf> =
             std::collections::HashSet::new();
 
         if self.first_run {
-            self.get_all_files(&mut ret);
+            self.get_all_files(&mut ret)?;
             self.first_run = false;
         } else {
-            // eprintln!("Starting the notify loop");
-            let events = self
-                .notify
-                .read_events_blocking(self.buffer.as_mut_slice())?;
-            // eprintln!("Got events...");
-
-            for event in events {
-                let name = event.name;
-                match name {
-                    Some(o) => {
-                        ret.insert(self.path_dir_prefix_input.join(o));
-                    }
-                    None => {
-                        // eprint!("Got unnamed notification...");
-                    }
-                };
-            }
+            self.get_new_files(&mut ret)?;
         }
 
         return Ok(ret);
