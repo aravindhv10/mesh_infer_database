@@ -2,7 +2,7 @@ pub struct dir_watcher {
     notify: inotify::Inotify,
     watchdescriptor: inotify::WatchDescriptor,
     buffer: Vec<u8>,
-    path_dir_prefix_input: std::string::String,
+    path_dir_prefix_input: std::path::PathBuf,
     first_run: bool,
 }
 
@@ -24,21 +24,21 @@ impl dir_watcher {
             notify: notify,
             watchdescriptor: watchdescriptor,
             buffer: buffer,
-            path_dir_prefix_input: path_dir_prefix_input,
+            path_dir_prefix_input: std::path::PathBuf::from(path_dir_prefix_input),
             first_run: true,
         })
     }
 
-    pub fn get_files(&mut self) -> anyhow::Result<std::collections::HashSet<std::string::String>> {
-        let mut ret: std::collections::HashSet<std::string::String> =
+    pub fn get_files(&mut self) -> anyhow::Result<std::collections::HashSet<std::path::PathBuf>> {
+        let mut ret: std::collections::HashSet<std::path::PathBuf> =
             std::collections::HashSet::new();
 
         if self.first_run {
-            let dir_read = std::fs::read_dir(self.path_dir_prefix_input.as_str())?;
+            let dir_read = std::fs::read_dir(&(self.path_dir_prefix_input))?;
             for file in dir_read {
                 match file {
                     Ok(o) => {
-                        ret.insert(o.path().to_string_lossy().to_string());
+                        ret.insert(o.path());
                     }
                     Err(e) => {
                         eprintln!("Failed to read the file due to {}", e);
@@ -57,11 +57,7 @@ impl dir_watcher {
                 let name = event.name;
                 match name {
                     Some(o) => {
-                        ret.insert(
-                            self.path_dir_prefix_input.clone()
-                                + "/"
-                                + o.to_string_lossy().to_string().as_str(),
-                        );
+                        ret.insert(self.path_dir_prefix_input.join(o));
                     }
                     None => {
                         // eprint!("Got unnamed notification...");
