@@ -5,11 +5,11 @@ edition = "2024"
 
 [dependencies]
 
-anyhow = "1.0.102"
-filesentry = "0.2.2"
+anyhow = "1"
 inotify = "0.11.1"
-loro = "1.12.0"
-mimalloc = "0.1.50"
+loro = "1"
+mimalloc = "0.1"
+tokio = { version = "1", features = ["full"] }
 
 iceoryx2-bb-concurrency = { version = "0.8.1", features = ["std"] }
 iceoryx2-bb-container = "0.8.1"
