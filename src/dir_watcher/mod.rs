@@ -50,48 +50,33 @@ impl dir_watcher {
     pub fn get_new_files(
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
-    ) -> anyhow::Result<usize> {
-        let events = self
-            .notify
-            .read_events_blocking(self.buffer.as_mut_slice())?;
+    ) -> anyhow::Result<()> {
+        self.notify
+            .read_events_blocking(self.buffer.as_mut_slice())?
+            .into_iter()
+            .map(|event| event.name)
+            .flatten()
+            .for_each(|i| {
+                ret.insert(self.path_dir_prefix_input.join(i));
+            });
 
-        let mut counts: usize = 0;
-        for event in events {
-            let name = event.name;
-            match name {
-                Some(o) => {
-                    if ret.insert(self.path_dir_prefix_input.join(o)) {
-                        counts += 1;
-                    }
-                }
-                None => {}
-            };
-        }
-
-        return Ok(counts);
+        Ok(())
     }
 
     pub fn get_new_files_immediate(
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
-    ) -> anyhow::Result<usize> {
-        let events = self.notify.read_events(self.buffer.as_mut_slice())?;
+    ) -> anyhow::Result<()> {
+        self.notify
+            .read_events(self.buffer.as_mut_slice())?
+            .into_iter()
+            .map(|event| event.name)
+            .flatten()
+            .for_each(|i| {
+                ret.insert(self.path_dir_prefix_input.join(i));
+            });
 
-        let mut counts: usize = 0;
-
-        for event in events {
-            let name = event.name;
-            match name {
-                Some(o) => {
-                    if ret.insert(self.path_dir_prefix_input.join(o)) {
-                        counts += 1;
-                    }
-                }
-                None => {}
-            };
-        }
-
-        return Ok(counts);
+        Ok(())
     }
 
     pub fn get_batch(
@@ -107,7 +92,9 @@ impl dir_watcher {
 
         while (ret.len() < batch_size) && (start_time.elapsed() < timeout) && (num_retries > 0) {
             match self.get_new_files_immediate(ret) {
-                Ok(o) => {}
+                Ok(o) => {
+                    num_retries -= 1;
+                }
                 Err(e) => {}
             }
         }
