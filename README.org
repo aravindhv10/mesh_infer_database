@@ -79,7 +79,7 @@ cargo add   iceoryx2-bb-posix  -F std
 *** Script
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/ignore.sh
   cd "$(dirname -- "${0}")/.."
-  (cat './GIT/ignore.list' ; sed 's@^@"/@g ; s@$@"@g' './GIT/rm.list') > './.gitignore'
+  (cat './GIT/ignore.list' ; sed 's@^@/@g' './GIT/rm.list') > './.gitignore'
 #+end_src
 
 ** To remove

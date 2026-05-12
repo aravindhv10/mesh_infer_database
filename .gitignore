@@ -1,7 +1,7 @@
 /Cargo.lock
 /target/
 /src/watch.rs
-"/#Cargo.toml#"
-"/.#README.org"
-"/README.org~"
-"/tmp.sh"
+/#Cargo.toml#
+/.#README.org
+/README.org~
+/tmp.sh

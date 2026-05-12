@@ -1,3 +1,3 @@
 #!/bin/sh
 cd "$(dirname -- "${0}")/.."
-(cat './GIT/ignore.list' ; sed 's@^@"/@g ; s@$@"@g' './GIT/rm.list') > './.gitignore'
+(cat './GIT/ignore.list' ; sed 's@^@/@g' './GIT/rm.list') > './.gitignore'
