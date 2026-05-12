@@ -68,16 +68,26 @@ cargo add   iceoryx2-bb-posix  -F std
 * GIT Scripts
 
 ** Ignore
-#+begin_src conf :mkdirp yes :tangle ./.gitignore
+
+*** List
+#+begin_src conf :mkdirp yes :tangle ./GIT/ignore.list
   /Cargo.lock
   /target/
   /src/watch.rs
+#+end_src
+
+*** Script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/ignore.sh
+  cd "$(dirname -- "${0}")/.."
+  (cat './GIT/ignore.list' ; sed 's@^@"/@g ; s@$@"@g' './GIT/rm.list') > './.gitignore'
 #+end_src
 
 ** To remove
 
 *** List
 #+begin_src conf :mkdirp yes :tangle ./GIT/rm.list
+  #Cargo.toml#
+  .#README.org
   README.org~
   tmp.sh
 #+end_src
@@ -99,6 +109,8 @@ cargo add   iceoryx2-bb-posix  -F std
   GIT/add.sh
   GIT/commit_and_push.sh
   .gitignore
+  GIT/ignore.list
+  GIT/ignore.sh
   GIT/rm.list
   GIT/rm.sh
   GIT/update.sh
@@ -117,6 +129,7 @@ cargo add   iceoryx2-bb-posix  -F std
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/update.sh
   cd "$(dirname -- "${0}")"
   ./rm.sh
+  ./ignore.sh
   ./add.sh
   cd '../'
   git status

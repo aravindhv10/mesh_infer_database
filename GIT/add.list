@@ -5,6 +5,8 @@ GIT/add.list
 GIT/add.sh
 GIT/commit_and_push.sh
 .gitignore
+GIT/ignore.list
+GIT/ignore.sh
 GIT/rm.list
 GIT/rm.sh
 GIT/update.sh
