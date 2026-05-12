@@ -60,8 +60,9 @@ impl dir_watcher {
             let name = event.name;
             match name {
                 Some(o) => {
-                    ret.insert(self.path_dir_prefix_input.join(o));
-                    counts += 1;
+                    if ret.insert(self.path_dir_prefix_input.join(o)) {
+                        counts += 1;
+                    }
                 }
                 None => {}
             };
@@ -82,8 +83,9 @@ impl dir_watcher {
             let name = event.name;
             match name {
                 Some(o) => {
-                    ret.insert(self.path_dir_prefix_input.join(o));
-                    counts += 1;
+                    if ret.insert(self.path_dir_prefix_input.join(o)) {
+                        counts += 1;
+                    }
                 }
                 None => {}
             };
