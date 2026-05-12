@@ -137,7 +137,7 @@ fn iceoryx2_main() -> anyhow::Result<()> {
 fn main() -> anyhow::Result<()> {
     let mut watched = dir_watcher::dir_watcher::new("/dev/shm".to_string())?;
     loop {
-        for i in watched.get_files()? {
+        for i in watched.get_files(std::time::Duration::from_millis(100), 16, 1)? {
             eprintln!("Found file {}", i.to_str().unwrap_or("NO PATH FOUND"));
         }
     }

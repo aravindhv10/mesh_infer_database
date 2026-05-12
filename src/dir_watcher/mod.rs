@@ -86,32 +86,42 @@ impl dir_watcher {
         batch_size: usize,
         mut num_retries: u8,
     ) -> anyhow::Result<()> {
-        self.get_new_files(ret)?;
+        if self.first_run {
+            self.get_all_files(ret)?;
+            self.first_run = false;
+        } else {
+            self.get_new_files(ret)?;
+        }
 
         let start_time = std::time::Instant::now();
 
         while (ret.len() < batch_size) && (start_time.elapsed() < timeout) && (num_retries > 0) {
             match self.get_new_files_immediate(ret) {
-                Ok(o) => {
+                Ok(_) => {
                     num_retries -= 1;
                 }
-                Err(e) => {}
+                Err(_) => {}
             }
         }
 
         Ok(())
     }
 
-    pub fn get_files(&mut self) -> anyhow::Result<std::collections::HashSet<std::path::PathBuf>> {
+    pub fn get_files(
+        &mut self,
+        timeout: std::time::Duration,
+        batch_size: usize,
+        num_retries: u8,
+    ) -> anyhow::Result<std::collections::HashSet<std::path::PathBuf>> {
         let mut ret: std::collections::HashSet<std::path::PathBuf> =
             std::collections::HashSet::new();
 
-        if self.first_run {
-            self.get_all_files(&mut ret)?;
-            self.first_run = false;
-        } else {
-            self.get_new_files(&mut ret)?;
-        }
+        self.get_batch(
+            /*ret: &mut std::collections::HashSet<std::path::PathBuf> =*/ &mut ret,
+            /*timeout: std::time::Duration =*/ timeout,
+            /*batch_size: usize =*/ batch_size,
+            /*mut num_retries: u8 =*/ num_retries,
+        )?;
 
         return Ok(ret);
     }
