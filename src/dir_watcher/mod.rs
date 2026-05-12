@@ -50,22 +50,67 @@ impl dir_watcher {
     pub fn get_new_files(
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
-    ) -> anyhow::Result<()> {
+    ) -> anyhow::Result<usize> {
         let events = self
             .notify
             .read_events_blocking(self.buffer.as_mut_slice())?;
+
+        let mut counts: usize = 0;
+        for event in events {
+            let name = event.name;
+            match name {
+                Some(o) => {
+                    ret.insert(self.path_dir_prefix_input.join(o));
+                    counts += 1;
+                }
+                None => {}
+            };
+        }
+
+        return Ok(counts);
+    }
+
+    pub fn get_new_files_immediate(
+        &mut self,
+        ret: &mut std::collections::HashSet<std::path::PathBuf>,
+    ) -> anyhow::Result<usize> {
+        let events = self.notify.read_events(self.buffer.as_mut_slice())?;
+
+        let mut counts: usize = 0;
 
         for event in events {
             let name = event.name;
             match name {
                 Some(o) => {
                     ret.insert(self.path_dir_prefix_input.join(o));
+                    counts += 1;
                 }
                 None => {}
             };
         }
 
-        return Ok(());
+        return Ok(counts);
+    }
+
+    pub fn get_batch(
+        &mut self,
+        ret: &mut std::collections::HashSet<std::path::PathBuf>,
+        timeout: std::time::Duration,
+        batch_size: usize,
+        mut num_retries: u8,
+    ) -> anyhow::Result<()> {
+        self.get_new_files(ret)?;
+
+        let start_time = std::time::Instant::now();
+
+        while (ret.len() < batch_size) && (start_time.elapsed() < timeout) && (num_retries > 0) {
+            match self.get_new_files_immediate(ret) {
+                Ok(o) => {}
+                Err(e) => {}
+            }
+        }
+
+        Ok(())
     }
 
     pub fn get_files(&mut self) -> anyhow::Result<std::collections::HashSet<std::path::PathBuf>> {
