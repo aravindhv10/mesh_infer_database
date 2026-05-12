@@ -27,13 +27,11 @@ impl dir_watcher {
         })
     }
 
-    pub fn get_all_files(
+    fn get_all_files(
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
     ) -> anyhow::Result<()> {
-        let dir_read = std::fs::read_dir(&(self.path_dir_prefix_input))?;
-
-        for file in dir_read {
+        std::fs::read_dir(&(self.path_dir_prefix_input))?.for_each(|file| {
             match file {
                 Ok(o) => {
                     ret.insert(o.path());
@@ -42,12 +40,12 @@ impl dir_watcher {
                     eprintln!("Failed to read the file due to {}", e);
                 }
             };
-        }
+        });
 
         return Ok(());
     }
 
-    pub fn get_new_files(
+    fn get_new_files(
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
     ) -> anyhow::Result<()> {
@@ -63,7 +61,7 @@ impl dir_watcher {
         Ok(())
     }
 
-    pub fn get_new_files_immediate(
+    fn get_new_files_immediate(
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
     ) -> anyhow::Result<()> {
@@ -79,7 +77,28 @@ impl dir_watcher {
         Ok(())
     }
 
-    pub fn get_batch(
+    fn look_more(
+        &mut self,
+        ret: &mut std::collections::HashSet<std::path::PathBuf>,
+        timeout: std::time::Duration,
+        batch_size: usize,
+        mut num_retries: u8,
+    ) -> anyhow::Result<()> {
+        let start_time = std::time::Instant::now();
+
+        while (ret.len() < batch_size) && (start_time.elapsed() < timeout) && (num_retries > 0) {
+            match self.get_new_files_immediate(ret) {
+                Ok(_) => {
+                    num_retries -= 1;
+                }
+                Err(_) => {}
+            }
+        }
+
+        Ok(())
+    }
+
+    fn get_batch(
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
         timeout: std::time::Duration,
@@ -93,16 +112,12 @@ impl dir_watcher {
             self.get_new_files(ret)?;
         }
 
-        let start_time = std::time::Instant::now();
-
-        while (ret.len() < batch_size) && (start_time.elapsed() < timeout) && (num_retries > 0) {
-            match self.get_new_files_immediate(ret) {
-                Ok(_) => {
-                    num_retries -= 1;
-                }
-                Err(_) => {}
-            }
-        }
+        self.look_more(
+            /*ret: &mut std::collections::HashSet<std::path::PathBuf> =*/ ret,
+            /*timeout: std::time::Duration =*/ timeout,
+            /*batch_size: usize =*/ batch_size,
+            /*mut num_retries: u8 =*/ num_retries,
+        )?;
 
         Ok(())
     }
