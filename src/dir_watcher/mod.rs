@@ -77,6 +77,20 @@ impl dir_watcher {
         Ok(())
     }
 
+    fn look_start(
+        &mut self,
+        ret: &mut std::collections::HashSet<std::path::PathBuf>,
+    ) -> anyhow::Result<()> {
+        if self.first_run {
+            self.get_all_files(ret)?;
+            self.first_run = false;
+        } else {
+            self.get_new_files(ret)?;
+        }
+
+        Ok(())
+    }
+
     fn look_more(
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
@@ -103,14 +117,9 @@ impl dir_watcher {
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
         timeout: std::time::Duration,
         batch_size: usize,
-        mut num_retries: u8,
+        num_retries: u8,
     ) -> anyhow::Result<()> {
-        if self.first_run {
-            self.get_all_files(ret)?;
-            self.first_run = false;
-        } else {
-            self.get_new_files(ret)?;
-        }
+        self.look_start(ret)?;
 
         self.look_more(
             /*ret: &mut std::collections::HashSet<std::path::PathBuf> =*/ ret,
