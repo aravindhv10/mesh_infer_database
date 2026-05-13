@@ -12,7 +12,8 @@ impl dir_watcher {
 
         let watchdescriptor = notify.watches().add(
             path_dir_prefix_input.as_ref(),
-            inotify::WatchMask::ATTRIB
+                inotify::WatchMask::ATTRIB
+                | inotify::WatchMask::CREATE
                 | inotify::WatchMask::CLOSE_WRITE
                 | inotify::WatchMask::CLOSE_NOWRITE
                 | inotify::WatchMask::MOVED_TO,
