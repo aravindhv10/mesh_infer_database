@@ -32,16 +32,14 @@ impl dir_watcher {
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
     ) -> anyhow::Result<()> {
-        std::fs::read_dir(&self.path_dir_prefix_input)?
-            .filter_map(|entry| {
+        ret.extend(
+            std::fs::read_dir(&self.path_dir_prefix_input)?.filter_map(|entry| {
                 entry
                     .map(|e| e.path())
                     .map_err(|e| eprintln!("Failed to read file: {}", e))
                     .ok()
-            })
-            .for_each(|i| {
-                ret.insert(i);
-            });
+            }),
+        );
 
         Ok(())
     }
@@ -50,14 +48,14 @@ impl dir_watcher {
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
     ) -> anyhow::Result<()> {
-        self.notify
-            .read_events_blocking(self.buffer.as_mut_slice())?
-            .into_iter()
-            .map(|event| event.name)
-            .flatten()
-            .for_each(|i| {
-                ret.insert(self.path_dir_prefix_input.join(i));
-            });
+        ret.extend(
+            self.notify
+                .read_events_blocking(self.buffer.as_mut_slice())?
+                .into_iter()
+                .map(|event| event.name)
+                .flatten()
+                .map(|name| std::path::PathBuf::from(name)),
+        );
 
         Ok(())
     }
@@ -66,14 +64,14 @@ impl dir_watcher {
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
     ) -> anyhow::Result<()> {
-        self.notify
-            .read_events(self.buffer.as_mut_slice())?
-            .into_iter()
-            .map(|event| event.name)
-            .flatten()
-            .for_each(|i| {
-                ret.insert(self.path_dir_prefix_input.join(i));
-            });
+        ret.extend(
+            self.notify
+                .read_events(self.buffer.as_mut_slice())?
+                .into_iter()
+                .map(|event| event.name)
+                .flatten()
+                .map(|name| std::path::PathBuf::from(name)),
+        );
 
         Ok(())
     }
