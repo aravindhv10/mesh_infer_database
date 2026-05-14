@@ -12,7 +12,7 @@ impl dir_watcher {
 
         let watchdescriptor = notify.watches().add(
             path_dir_prefix_input.as_ref(),
-                inotify::WatchMask::ATTRIB
+            inotify::WatchMask::ATTRIB
                 | inotify::WatchMask::CREATE
                 | inotify::WatchMask::CLOSE_WRITE
                 | inotify::WatchMask::CLOSE_NOWRITE
@@ -32,13 +32,14 @@ impl dir_watcher {
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
     ) -> anyhow::Result<()> {
-
-        ret.extend(std::fs::read_dir(&self.path_dir_prefix_input)?.filter_map(|entry| {
-            entry
-                .map(|e| e.path())
-                .map_err(|e| eprintln!("Failed to read file: {}", e))
-                .ok()
-        }));
+        ret.extend(
+            std::fs::read_dir(&self.path_dir_prefix_input)?.filter_map(|entry| {
+                entry
+                    .map(|e| e.path())
+                    .map_err(|e| eprintln!("Failed to read file: {}", e))
+                    .ok()
+            }),
+        );
 
         Ok(())
     }
