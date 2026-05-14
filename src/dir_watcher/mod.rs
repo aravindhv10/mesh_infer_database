@@ -32,18 +32,15 @@ impl dir_watcher {
         &mut self,
         ret: &mut std::collections::HashSet<std::path::PathBuf>,
     ) -> anyhow::Result<()> {
-        std::fs::read_dir(&(self.path_dir_prefix_input))?.for_each(|file| {
-            match file {
-                Ok(o) => {
-                    ret.insert(o.path());
-                }
-                Err(e) => {
-                    eprintln!("Failed to read the file due to {}", e);
-                }
-            };
-        });
 
-        return Ok(());
+        ret.extend(std::fs::read_dir(&self.path_dir_prefix_input)?.filter_map(|entry| {
+            entry
+                .map(|e| e.path())
+                .map_err(|e| eprintln!("Failed to read file: {}", e))
+                .ok()
+        }));
+
+        Ok(())
     }
 
     fn get_new_files(

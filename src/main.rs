@@ -134,7 +134,7 @@ fn iceoryx2_main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn main() -> anyhow::Result<()> {
+fn dir_watcher_main() -> anyhow::Result<()> {
     let mut watched = dir_watcher::dir_watcher::new("/dev/shm".to_string())?;
     loop {
         for i in watched.get_files(std::time::Duration::from_millis(100), 16, 1)? {
@@ -142,4 +142,8 @@ fn main() -> anyhow::Result<()> {
         }
     }
     return Ok(());
+}
+
+fn main() -> anyhow::Result<()> {
+    dir_watcher_main()
 }
