@@ -54,7 +54,7 @@ impl dir_watcher {
                 .into_iter()
                 .map(|event| event.name)
                 .flatten()
-                .map(|name| std::path::PathBuf::from(name)),
+                .map(|name| self.path_dir_prefix_input.join(name)),
         );
 
         Ok(())
@@ -70,7 +70,7 @@ impl dir_watcher {
                 .into_iter()
                 .map(|event| event.name)
                 .flatten()
-                .map(|name| std::path::PathBuf::from(name)),
+                .map(|name| self.path_dir_prefix_input.join(name)),
         );
 
         Ok(())

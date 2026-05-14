@@ -145,5 +145,6 @@ fn dir_watcher_main() -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
-    dir_watcher_main()
+    dir_watcher_main()?;
+    Ok(())
 }
