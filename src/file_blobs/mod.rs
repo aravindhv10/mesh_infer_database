@@ -1,3 +1,6 @@
+pub struct metadata_chunk {}
+impl metadata_chunk {}
+
 pub struct metadata_file {
     fd: std::fs::File,
     mmap: memmap2::Mmap,

@@ -146,9 +146,11 @@ fn dir_watcher_main() -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
-    let res = file_blobs::metadata_file::open("./Cargo.toml", 1 << 3)?;
+    let res = file_blobs::metadata_file::open("./Cargo.toml", 1 << 20)?;
     println!("n pieces = {}", res.get_n_pieces());
-    let tmp = res.get_piece(5)?;
+    let tmp = res.get_piece(0)?;
     println!("Contents at 5  = {}", std::str::from_utf8(tmp)?);
+    let myhasher = blake3::hash(tmp);
+    println!("{}", myhasher.as_slice().len());
     Ok(())
 }
