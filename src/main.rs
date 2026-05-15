@@ -146,6 +146,7 @@ fn dir_watcher_main() -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
-    dir_watcher_main()?;
+    let res = file_blobs::metadata_file::open("./Cargo.toml", 1 << 3)?;
+    println!("n pieces = {}", res.get_n_pieces());
     Ok(())
 }
