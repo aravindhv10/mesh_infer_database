@@ -1,4 +1,7 @@
-pub struct metadata_chunk {}
+pub struct metadata_chunk<'a> {
+    chunk: &[u8],
+    hash: blake3::Hash,
+}
 impl metadata_chunk {}
 
 pub struct metadata_file {
