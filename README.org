@@ -236,6 +236,21 @@ impl dir_watcher {
           let hash = blake3::hash(chunk);
           Self { chunk, hash }
       }
+
+      pub fn write_to_destination(
+          &self,
+          path_dir_prefix: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<()> {
+          let res = (self.hash).to_hex().to_string();
+          let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]);
+          std::fs::create_dir_all(&tmp)?;
+          std::fs::write(
+              /*path =*/ tmp.join(res + self.chunk.len().to_string().as_str()),
+              /*contents =*/ self.chunk,
+          )?;
+
+          Ok(())
+      }
   }
 
   pub struct metadata_file {
