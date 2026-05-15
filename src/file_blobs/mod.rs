@@ -40,4 +40,15 @@ impl metadata_file {
     pub fn get_n_pieces(&self) -> usize {
         self.n_pieces
     }
+
+    #[inline(always)]
+    pub fn get_piece(&self, idx: usize) -> anyhow::Result<&[u8]> {
+        if idx >= self.n_pieces {
+            return Err(anyhow::format_err!("Index out of bounds..."));
+        }
+        let start = idx * self.size_piece;
+        let stop = start + self.size_piece;
+        let res = &self.mmap[start..stop];
+        return Ok(res);
+    }
 }
