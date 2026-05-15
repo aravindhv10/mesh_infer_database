@@ -245,7 +245,7 @@ impl dir_watcher {
           let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]);
           std::fs::create_dir_all(&tmp)?;
           std::fs::write(
-              /*path =*/ tmp.join(res + self.chunk.len().to_string().as_str()),
+              /*path =*/ tmp.join(res + "_" + self.chunk.len().to_string().as_str()),
               /*contents =*/ self.chunk,
           )?;
 
@@ -391,7 +391,7 @@ impl dir_watcher {
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
   cd "$(dirname -- "${0}")/.."
   "${HOME}/SSH/K/P/setup.sh"
-  git commit -m 'Fully working file chunk hasher'
+  git commit -m 'Mostly done writing file chunks'
   git push
 #+end_src
 

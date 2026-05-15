@@ -17,7 +17,7 @@ impl<'a> metadata_chunk<'a> {
         let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]);
         std::fs::create_dir_all(&tmp)?;
         std::fs::write(
-            /*path =*/ tmp.join(res + self.chunk.len().to_string().as_str()),
+            /*path =*/ tmp.join(res + "_" + self.chunk.len().to_string().as_str()),
             /*contents =*/ self.chunk,
         )?;
 
