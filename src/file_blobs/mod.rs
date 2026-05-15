@@ -63,4 +63,11 @@ impl metadata_file {
         let res = &self.mmap[start..stop];
         return Ok(res);
     }
+
+    pub fn get_all_chunks(&'a self) -> Vec<metadata_chunk<'a>> {
+        self.mmap
+            .chunks(self.size_piece)
+            .map(|slice| metadata_chunk::new<'a>(slice))
+            .collect()
+    }
 }
