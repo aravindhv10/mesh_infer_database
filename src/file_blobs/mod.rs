@@ -47,7 +47,7 @@ impl metadata_file {
             return Err(anyhow::format_err!("Index out of bounds..."));
         }
         let start = idx * self.size_piece;
-        let stop = start + self.size_piece;
+        let stop = (start + self.size_piece).min(self.mmap.len());
         let res = &self.mmap[start..stop];
         return Ok(res);
     }
