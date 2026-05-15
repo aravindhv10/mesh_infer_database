@@ -7,6 +7,7 @@ use std::any::Any;
 use iceoryx2::prelude::*;
 
 mod dir_watcher;
+mod file_blobs;
 
 #[derive(ZeroCopySend, Debug)]
 #[repr(C)]

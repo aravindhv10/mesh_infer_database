@@ -274,6 +274,7 @@ impl dir_watcher {
   GIT/update.sh
   README.org
   src/dir_watcher/mod.rs
+  src/file_blobs/mod.rs
   src/main.rs
 #+end_src
 
