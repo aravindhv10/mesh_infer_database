@@ -1,5 +1,5 @@
 pub struct metadata_chunk<'a> {
-    chunk: &[u8],
+    chunk: &'a [u8],
     hash: blake3::Hash,
 }
 impl metadata_chunk {}

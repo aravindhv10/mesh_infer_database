@@ -227,7 +227,7 @@ impl dir_watcher {
 ** Code for file blob
 #+begin_src rust :mkdirp yes :tangle ./src/file_blobs/mod.rs
   pub struct metadata_chunk<'a> {
-      chunk: &[u8],
+      chunk: &'a [u8],
       hash: blake3::Hash,
   }
   impl metadata_chunk {}
