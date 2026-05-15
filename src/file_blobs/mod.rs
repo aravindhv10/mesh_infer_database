@@ -2,7 +2,13 @@ pub struct metadata_chunk<'a> {
     chunk: &'a [u8],
     hash: blake3::Hash,
 }
-impl metadata_chunk {}
+
+impl<'a> metadata_chunk<'a> {
+    pub fn new(chunk: &'a [u8]) -> Self {
+        let hash = blake3::hash(chunk);
+        Self { chunk, hash }
+    }
+}
 
 pub struct metadata_file {
     fd: std::fs::File,
