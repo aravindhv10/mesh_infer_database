@@ -6,9 +6,10 @@ edition = "2024"
 [dependencies]
 
 anyhow = "1"
-inotify = "0.11.1"
+blake3 = { version = "1", features = ["mmap", "rayon", "serde"] }
+inotify = "0.11"
 loro = "1"
-memmap2 = "0.9.10"
+memmap2 = "0.9"
 mimalloc = "0.1"
 tokio = { version = "1", features = ["full"] }
 

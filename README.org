@@ -16,9 +16,10 @@
 *** Standard
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   anyhow = "1"
-  inotify = "0.11.1"
+  blake3 = { version = "1", features = ["mmap", "rayon", "serde"] }
+  inotify = "0.11"
   loro = "1"
-  memmap2 = "0.9.10"
+  memmap2 = "0.9"
   mimalloc = "0.1"
   tokio = { version = "1", features = ["full"] }
 #+end_src
@@ -345,7 +346,7 @@ impl dir_watcher {
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
   cd "$(dirname -- "${0}")/.."
   "${HOME}/SSH/K/P/setup.sh"
-  git commit -m 'Significant doc cleanups and doc reorg'
+  git commit -m 'Added blake3 dependency'
   git push
 #+end_src
 
