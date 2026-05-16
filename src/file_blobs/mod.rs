@@ -75,19 +75,23 @@ pub struct metadata_file {
 impl metadata_file {
     pub fn open(
         path_file_input: impl AsRef<std::path::Path>,
-        size_piece: usize,
+        size_piece_pw: usize,
     ) -> anyhow::Result<Self> {
         let fd = std::fs::File::open(path_file_input)?;
+
+        let size_piece = 1 << size_piece_pw;
+        let size_piece_mask = size_piece - 1;
 
         let mmap = unsafe { memmap2::Mmap::map(&fd) }?;
         mmap.advise(memmap2::Advice::Sequential)?;
 
         let n_pieces = {
-            let tmp = mmap.len() / size_piece;
-            if (mmap.len() % size_piece) == 0 {
-                tmp
+            let q = mmap.len() >> size_piece_pw;
+            let r = mmap.len() & size_piece_mask;
+            if r == 0 {
+                q
             } else {
-                tmp + 1
+                q + 1
             }
         };
 
@@ -97,30 +101,6 @@ impl metadata_file {
             size_piece: size_piece,
             n_pieces: n_pieces,
         })
-    }
-
-    #[inline(always)]
-    pub fn get_len(&self) -> usize {
-        self.mmap.len()
-    }
-
-    #[inline(always)]
-    pub fn get_n_pieces(&self) -> usize {
-        self.n_pieces
-    }
-
-    pub fn get_piece(&self, idx: usize) -> anyhow::Result<&[u8]> {
-        if idx >= self.n_pieces {
-            return Err(anyhow::format_err!("Index out of bounds..."));
-        }
-        let start = idx * self.size_piece;
-        let stop = (start + self.size_piece).min(self.mmap.len());
-
-        self.mmap
-            .advise_range(memmap2::Advice::WillNeed, start, stop - start)?;
-
-        let res = &self.mmap[start..stop];
-        return Ok(res);
     }
 
     pub fn write_file_to_prefix(
@@ -151,12 +131,5 @@ impl metadata_file {
         }
 
         Ok(ret)
-    }
-
-    pub fn get_all_chunks(&self) -> Vec<metadata_chunk<'_>> {
-        self.mmap
-            .chunks(self.size_piece)
-            .map(|slice| metadata_chunk::new(slice))
-            .collect()
     }
 }
