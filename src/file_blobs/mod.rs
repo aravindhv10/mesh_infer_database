@@ -12,7 +12,8 @@ fn construct_name(
     if create_dir {
         std::fs::create_dir_all(&tmp)?;
     }
-    Ok(tmp.join(res + "_" + size.to_string().as_str()))
+
+    Ok(tmp.join(format!("{}_{:x}", res, size)))
 }
 
 pub struct metadata_chunk_info {
@@ -88,11 +89,7 @@ impl metadata_file {
         let n_pieces = {
             let q = mmap.len() >> size_piece_pw;
             let r = mmap.len() & size_piece_mask;
-            if r == 0 {
-                q
-            } else {
-                q + 1
-            }
+            if r == 0 { q } else { q + 1 }
         };
 
         Ok(Self {
