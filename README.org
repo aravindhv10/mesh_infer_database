@@ -501,7 +501,7 @@ impl dir_watcher {
   }
 
   fn main() -> anyhow::Result<()> {
-      let res = file_blobs::metadata_file::open("./Cargo.toml", 1 << 7)?;
+      let res = file_blobs::metadata_file::open("./Cargo.toml", 1 << 20)?;
       res.write_file_to_prefix(/*path_dir_prefix: &std::path::Path =*/ "./dest")?;
       Ok(())
   }
@@ -516,6 +516,7 @@ impl dir_watcher {
   /Cargo.lock
   /target/
   /src/watch.rs
+  /dest/
 #+end_src
 
 *** Script
