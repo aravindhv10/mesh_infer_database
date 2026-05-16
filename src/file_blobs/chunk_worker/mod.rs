@@ -26,6 +26,11 @@ pub struct hashed_chunk<'a> {
     pub hash: blake3::Hash,
 }
 
+pub struct standalone_chunk<'a> {
+    pub chunk: Vec<u8>,
+    pub hash: &'a blake3::Hash,
+}
+
 impl metadata_chunk {
     #[inline(always)]
     pub fn read_from_prefix(
@@ -65,3 +70,5 @@ impl<'a> hashed_chunk<'a> {
         })
     }
 }
+
+impl<'a> standalone_chunk<'a> {}

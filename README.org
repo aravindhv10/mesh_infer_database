@@ -256,6 +256,11 @@ impl dir_watcher {
       pub hash: blake3::Hash,
   }
 
+  pub struct standalone_chunk<'a> {
+      pub chunk: Vec<u8>,
+      pub hash: &'a blake3::Hash,
+  }
+
   impl metadata_chunk {
       #[inline(always)]
       pub fn read_from_prefix(
@@ -295,6 +300,8 @@ impl dir_watcher {
           })
       }
   }
+
+  impl<'a> standalone_chunk<'a> {}
 #+end_src
 
 *** Code for the class which chunks and hashes each file
