@@ -289,7 +289,7 @@ impl dir_watcher {
           )?)?
           .write_all(self.chunk)?;
 
-          Ok(metadata_chunk_info {
+          Ok(metadata_chunk {
               hash: self.hash.clone(),
               size: self.chunk.len(),
           })
@@ -604,7 +604,7 @@ impl dir_watcher {
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
   cd "$(dirname -- "${0}")/.."
   "${HOME}/SSH/K/P/setup.sh"
-  git commit -m 'Added main.rs into org'
+  git commit -m 'Started some cleanups and reorg'
   git push
 #+end_src
 

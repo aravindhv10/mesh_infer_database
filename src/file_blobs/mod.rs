@@ -59,7 +59,7 @@ impl<'a> hashed_chunk<'a> {
         )?)?
         .write_all(self.chunk)?;
 
-        Ok(metadata_chunk_info {
+        Ok(metadata_chunk {
             hash: self.hash.clone(),
             size: self.chunk.len(),
         })
