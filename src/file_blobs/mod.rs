@@ -1,5 +1,10 @@
 use std::io::Write;
 
+pub struct metadata_chunk_info {
+    pub hash: blake3::Hash,
+    pub size: usize,
+}
+
 pub struct metadata_chunk<'a> {
     pub chunk: &'a [u8],
     pub hash: blake3::Hash,
@@ -14,7 +19,7 @@ impl<'a> metadata_chunk<'a> {
     pub fn write_to_destination(
         &self,
         path_dir_prefix: impl AsRef<std::path::Path>,
-    ) -> anyhow::Result<()> {
+    ) -> anyhow::Result<metadata_chunk_info> {
         let res = (self.hash).to_hex().to_string();
         let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]);
         std::fs::create_dir_all(&tmp)?;
@@ -23,12 +28,10 @@ impl<'a> metadata_chunk<'a> {
 
         fd.write_all(self.chunk)?;
 
-        // std::fs::write_all(
-        //     /*path =*/ tmp.join(res + "_" + self.chunk.len().to_string().as_str()),
-        //     /*contents =*/ self.chunk,
-        // )?;
-
-        Ok(())
+        Ok(metadata_chunk_info {
+            hash: self.hash.clone(),
+            size: self.chunk.len(),
+        })
     }
 }
 
@@ -90,9 +93,14 @@ impl metadata_file {
         return Ok(res);
     }
 
-    pub fn write_file_to_prefix(&self, path_dir_prefix: impl AsRef<std::path::Path>) -> anyhow::Result<()> {
+    pub fn write_file_to_prefix(
+        &self,
+        path_dir_prefix: impl AsRef<std::path::Path>,
+    ) -> anyhow::Result<Vec<metadata_chunk_info>> {
         const read_ahead: usize = 1 << 3;
         const read_mask: usize = read_ahead - 1;
+
+        let mut ret: Vec<metadata_chunk_info> = Vec::with_capacity(self.n_pieces);
 
         for idx in 0..self.n_pieces {
             let start = idx * self.size_piece;
@@ -108,10 +116,11 @@ impl metadata_file {
 
             let res = &self.mmap[start..stop];
             let piece = metadata_chunk::new(res);
-            piece.write_to_destination(path_dir_prefix.as_ref())?;
+            let out_data = piece.write_to_destination(path_dir_prefix.as_ref())?;
+            ret.push(out_data);
         }
 
-        Ok(())
+        Ok(ret)
     }
 
     pub fn get_all_chunks(&self) -> Vec<metadata_chunk<'_>> {
