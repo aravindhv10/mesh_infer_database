@@ -147,12 +147,6 @@ fn dir_watcher_main() -> anyhow::Result<()> {
 
 fn main() -> anyhow::Result<()> {
     let res = file_blobs::metadata_file::open("./Cargo.toml", 1 << 7)?;
-
-    let pieces = res.get_all_chunks();
-
-    for i in pieces.iter() {
-        i.write_to_destination("./dest/")?;
-    }
-
+    res.write_file_to_prefix(/*path_dir_prefix: &std::path::Path =*/ "./dest")?;
     Ok(())
 }
