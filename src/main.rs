@@ -146,7 +146,7 @@ fn dir_watcher_main() -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
-    let res = file_blobs::metadata_file::open("./Cargo.toml", 1 << 20)?;
+    let res = file_blobs::metadata_file::open("./Cargo.toml", 20)?;
     let tmp = res.write_file_to_prefix(/*path_dir_prefix: &std::path::Path =*/ "./dest")?;
     tmp.iter().for_each(|i| {
         println!(
