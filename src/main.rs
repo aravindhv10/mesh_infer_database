@@ -151,7 +151,7 @@ fn main() -> anyhow::Result<()> {
     let pieces = res.get_all_chunks();
 
     for i in pieces.iter() {
-        i.write_to_destination("/root/dest/")?;
+        i.write_to_destination("./dest/")?;
     }
 
     Ok(())
