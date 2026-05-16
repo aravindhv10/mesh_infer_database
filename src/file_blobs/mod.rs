@@ -1,8 +1,20 @@
-use std::io::Write;
+use std::io::{Read, Write};
 
 pub struct metadata_chunk_info {
     pub hash: blake3::Hash,
     pub size: usize,
+}
+
+impl metadata_chunk_info {
+    pub fn read_from_prefix(
+        &self,
+        path_dir_prefix: impl AsRef<std::path::Path>,
+    ) -> anyhow::Result<Vec<u8>> {
+        let res = (self.hash).to_hex().to_string();
+        let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]);
+        let ret = std::fs::read(tmp.join(res + "_" + self.size.to_string().as_str()))?;
+        Ok(ret)
+    }
 }
 
 pub struct metadata_chunk<'a> {
