@@ -318,7 +318,7 @@ impl dir_watcher {
           return Ok(res);
       }
 
-      pub fn write_file_to_prefix(&self, path_dir_prefix: &std::path::Path) -> anyhow::Result<()> {
+      pub fn write_file_to_prefix(&self, path_dir_prefix: impl AsRef<std::path::Path>) -> anyhow::Result<()> {
           const read_ahead: usize = 1 << 3;
           const read_mask: usize = read_ahead - 1;
 
