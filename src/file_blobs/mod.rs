@@ -108,7 +108,7 @@ impl metadata_file {
 
             let res = &self.mmap[start..stop];
             let piece = metadata_chunk::new(res);
-            piece.write_to_destination(path_dir_prefix)?;
+            piece.write_to_destination(path_dir_prefix.as_ref())?;
         }
 
         Ok(())
