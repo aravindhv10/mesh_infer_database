@@ -47,7 +47,7 @@ impl metadata_file {
         let fd = std::fs::File::open(path_file_input)?;
 
         let mmap = unsafe { memmap2::Mmap::map(&fd) }?;
-        mmap.advise(memmap2::Advice::Sequential);
+        mmap.advise(memmap2::Advice::Sequential)?;
 
         let n_pieces = {
             let tmp = mmap.len() / size_piece;
@@ -84,7 +84,7 @@ impl metadata_file {
         let stop = (start + self.size_piece).min(self.mmap.len());
 
         self.mmap
-            .advise_range(memmap2::Advice::WillNeed, start, stop - start);
+            .advise_range(memmap2::Advice::WillNeed, start, stop - start)?;
 
         let res = &self.mmap[start..stop];
         return Ok(res);
@@ -101,7 +101,7 @@ impl metadata_file {
                 let stop = (start + ((read_ahead << 1) * self.size_piece)).min(self.mmap.len());
 
                 self.mmap
-                    .advise_range(memmap2::Advice::WillNeed, start, stop - start);
+                    .advise_range(memmap2::Advice::WillNeed, start, stop - start)?;
             }
 
             let stop = (start + self.size_piece).min(self.mmap.len());
