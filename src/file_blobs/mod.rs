@@ -1,3 +1,5 @@
+use std::io::Write;
+
 pub struct metadata_chunk<'a> {
     pub chunk: &'a [u8],
     pub hash: blake3::Hash,
@@ -16,10 +18,15 @@ impl<'a> metadata_chunk<'a> {
         let res = (self.hash).to_hex().to_string();
         let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]);
         std::fs::create_dir_all(&tmp)?;
-        std::fs::write(
-            /*path =*/ tmp.join(res + "_" + self.chunk.len().to_string().as_str()),
-            /*contents =*/ self.chunk,
-        )?;
+        let mut fd =
+            std::fs::File::create(tmp.join(res + "_" + self.chunk.len().to_string().as_str()))?;
+
+        fd.write_all(self.chunk)?;
+
+        // std::fs::write_all(
+        //     /*path =*/ tmp.join(res + "_" + self.chunk.len().to_string().as_str()),
+        //     /*contents =*/ self.chunk,
+        // )?;
 
         Ok(())
     }
@@ -68,7 +75,6 @@ impl metadata_file {
         self.n_pieces
     }
 
-    #[inline(always)]
     pub fn get_piece(&self, idx: usize) -> anyhow::Result<&[u8]> {
         if idx >= self.n_pieces {
             return Err(anyhow::format_err!("Index out of bounds..."));
