@@ -278,13 +278,13 @@ impl dir_watcher {
           &self,
           path_dir_prefix: impl AsRef<std::path::Path>,
       ) -> anyhow::Result<metadata_chunk_info> {
-          let res = (self.hash).to_hex().to_string();
-          let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]);
-          std::fs::create_dir_all(&tmp)?;
-          let mut fd =
-              std::fs::File::create(tmp.join(res + "_" + self.chunk.len().to_string().as_str()))?;
-
-          fd.write_all(self.chunk)?;
+          std::fs::File::create(construct_name(
+              /*path_dir_prefix: impl AsRef<std::path::Path> =*/ &path_dir_prefix,
+              /*hash: &blake3::Hash =*/ &self.hash,
+              /*size: usize =*/ self.chunk.len(),
+              /*create_dir: bool =*/ true,
+          )?)?
+          .write_all(self.chunk)?;
 
           Ok(metadata_chunk_info {
               hash: self.hash.clone(),
