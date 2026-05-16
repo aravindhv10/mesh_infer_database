@@ -47,6 +47,7 @@ impl metadata_file {
         let fd = std::fs::File::open(path_file_input)?;
 
         let mmap = unsafe { memmap2::Mmap::map(&fd) }?;
+        mmap.advise(memmap2::Advice::Sequential);
 
         let n_pieces = {
             let tmp = mmap.len() / size_piece;
@@ -81,8 +82,36 @@ impl metadata_file {
         }
         let start = idx * self.size_piece;
         let stop = (start + self.size_piece).min(self.mmap.len());
+
+        self.mmap
+            .advise_range(memmap2::Advice::WillNeed, start, stop - start);
+
         let res = &self.mmap[start..stop];
         return Ok(res);
+    }
+
+    pub fn write_file_to_prefix(&self, path_dir_prefix: &std::path::Path) -> anyhow::Result<()> {
+        const read_ahead: usize = 1 << 3;
+        const read_mask: usize = read_ahead - 1;
+
+        for idx in 0..self.n_pieces {
+            let start = idx * self.size_piece;
+
+            if (idx & read_mask) == 0 {
+                let stop = (start + ((read_ahead << 1) * self.size_piece)).min(self.mmap.len());
+
+                self.mmap
+                    .advise_range(memmap2::Advice::WillNeed, start, stop - start);
+            }
+
+            let stop = (start + self.size_piece).min(self.mmap.len());
+
+            let res = &self.mmap[start..stop];
+            let piece = metadata_chunk::new(res);
+            piece.write_to_destination(path_dir_prefix)?;
+        }
+
+        Ok(())
     }
 
     pub fn get_all_chunks(&self) -> Vec<metadata_chunk<'_>> {
