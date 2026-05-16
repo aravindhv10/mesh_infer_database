@@ -1,19 +1,37 @@
 use std::io::{Read, Write};
 
+#[inline(always)]
+fn construct_name(
+    path_dir_prefix: impl AsRef<std::path::Path>,
+    hash: &blake3::Hash,
+    size: usize,
+    create_dir: bool,
+) -> anyhow::Result<std::path::PathBuf> {
+    let res = hash.to_hex().to_string();
+    let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]);
+    if create_dir {
+        std::fs::create_dir_all(&tmp)?;
+    }
+    Ok(tmp.join(res + "_" + size.to_string().as_str()))
+}
+
 pub struct metadata_chunk_info {
     pub hash: blake3::Hash,
     pub size: usize,
 }
 
 impl metadata_chunk_info {
+    #[inline(always)]
     pub fn read_from_prefix(
         &self,
         path_dir_prefix: impl AsRef<std::path::Path>,
     ) -> anyhow::Result<Vec<u8>> {
-        let res = (self.hash).to_hex().to_string();
-        let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]);
-        let ret = std::fs::read(tmp.join(res + "_" + self.size.to_string().as_str()))?;
-        Ok(ret)
+        Ok(std::fs::read(construct_name(
+            /*path_dir_prefix: impl AsRef<std::path::Path> =*/ path_dir_prefix,
+            /*hash: &blake3::Hash =*/ &self.hash,
+            /*size: usize =*/ self.size,
+            /*create_dir: bool =*/ false,
+        )?)?)
     }
 }
 
