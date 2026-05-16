@@ -16,12 +16,17 @@ fn construct_name(
     Ok(tmp.join(format!("{}_{:x}", res, size)))
 }
 
-pub struct metadata_chunk_info {
+pub struct metadata_chunk {
     pub hash: blake3::Hash,
     pub size: usize,
 }
 
-impl metadata_chunk_info {
+pub struct hashed_chunk<'a> {
+    pub chunk: &'a [u8],
+    pub hash: blake3::Hash,
+}
+
+impl metadata_chunk {
     #[inline(always)]
     pub fn read_from_prefix(
         &self,
@@ -36,12 +41,7 @@ impl metadata_chunk_info {
     }
 }
 
-pub struct metadata_chunk<'a> {
-    pub chunk: &'a [u8],
-    pub hash: blake3::Hash,
-}
-
-impl<'a> metadata_chunk<'a> {
+impl<'a> hashed_chunk<'a> {
     pub fn new(chunk: &'a [u8]) -> Self {
         let hash = blake3::hash(chunk);
         Self { chunk, hash }
@@ -103,11 +103,11 @@ impl metadata_file {
     pub fn write_file_to_prefix(
         &self,
         path_dir_prefix: impl AsRef<std::path::Path>,
-    ) -> anyhow::Result<Vec<metadata_chunk_info>> {
+    ) -> anyhow::Result<Vec<metadata_chunk>> {
         const read_ahead: usize = 1 << 3;
         const read_mask: usize = read_ahead - 1;
 
-        let mut ret: Vec<metadata_chunk_info> = Vec::with_capacity(self.n_pieces);
+        let mut ret: Vec<metadata_chunk> = Vec::with_capacity(self.n_pieces);
 
         for idx in 0..self.n_pieces {
             let start = idx * self.size_piece;
@@ -122,7 +122,7 @@ impl metadata_file {
             let stop = (start + self.size_piece).min(self.mmap.len());
 
             let res = &self.mmap[start..stop];
-            let piece = metadata_chunk::new(res);
+            let piece = hashed_chunk::new(res);
             let out_data = piece.write_to_destination(path_dir_prefix.as_ref())?;
             ret.push(out_data);
         }
