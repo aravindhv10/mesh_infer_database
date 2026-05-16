@@ -50,7 +50,7 @@ impl<'a> hashed_chunk<'a> {
     pub fn write_to_destination(
         &self,
         path_dir_prefix: impl AsRef<std::path::Path>,
-    ) -> anyhow::Result<metadata_chunk_info> {
+    ) -> anyhow::Result<metadata_chunk> {
         std::fs::File::create(construct_name(
             /*path_dir_prefix: impl AsRef<std::path::Path> =*/ &path_dir_prefix,
             /*hash: &blake3::Hash =*/ &self.hash,
