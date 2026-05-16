@@ -227,7 +227,7 @@ impl dir_watcher {
 ** Code for file blob
 
 *** Code for chunks
-#+begin_src rust :mkdirp yes :tangle ./src/file_blobs/mod.rs
+#+begin_src rust :mkdirp yes :tangle ./src/file_blobs/chunk_worker/mod.rs
   use std::io::{Read, Write};
 
   #[inline(always)]
@@ -297,8 +297,12 @@ impl dir_watcher {
   }
 #+end_src
 
-
+*** Code for the class which chunks and hashes each file
 #+begin_src rust :mkdirp yes :tangle ./src/file_blobs/mod.rs
+  mod chunk_worker;
+
+  use chunk_worker::*;
+
   pub struct metadata_file {
       fd: std::fs::File,
       mmap: memmap2::Mmap,
@@ -580,6 +584,7 @@ impl dir_watcher {
   GIT/update.sh
   README.org
   src/dir_watcher/mod.rs
+  src/file_blobs/chunk_worker/mod.rs
   src/file_blobs/mod.rs
   src/main.rs
 #+end_src

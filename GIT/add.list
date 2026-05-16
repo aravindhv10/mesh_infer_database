@@ -12,5 +12,6 @@ GIT/rm.sh
 GIT/update.sh
 README.org
 src/dir_watcher/mod.rs
+src/file_blobs/chunk_worker/mod.rs
 src/file_blobs/mod.rs
 src/main.rs
