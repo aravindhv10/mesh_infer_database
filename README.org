@@ -1,18 +1,19 @@
 * Goals
 
 ** Main structs:
-- =standalone_chunk=:
+
+*** =standalone_chunk=:
   1. Hold the data along with the hash.
 
-- =metadata_chunk=:
+*** =metadata_chunk=:
   1. Hold metadata (hash, size) of the chunk for future retrieval.
   2. Read the file and provide the data.
 
-- =hashed_chunk=:
+*** =hashed_chunk=:
   1. Hash the chunks.
   2. Write out the chunks into files.
 
-- =metadata_file=:
+*** =metadata_file=:
   1. Read the file and do the chunk splitting.
   2. Hand over the chunks for writing.
 
@@ -23,7 +24,8 @@
    - Maps the input file into memory.
    - Calculates the number of chunks.
 2. =metadata_file::write_file_to_prefix=: Inputs: path of prefix dir.
-   - Actually force chunks into memory using =madvise= and 
+   - Actually force chunks into memory using =madvise= and hashing.
+   - write it out to file using =hashed_chunk= as intermediates.
 
 
 * Cargo.toml
