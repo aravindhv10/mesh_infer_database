@@ -8,12 +8,14 @@ fn construct_name(
     create_dir: bool,
 ) -> anyhow::Result<std::path::PathBuf> {
     let res = hash.to_hex().to_string();
-    let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]);
+
+    let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]).join(&res);
+
     if create_dir {
         std::fs::create_dir_all(&tmp)?;
     }
 
-    Ok(tmp.join(format!("{}_{:x}", res, size)))
+    Ok(tmp.join(format!("{:x}", size)))
 }
 
 pub struct metadata_chunk {
