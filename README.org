@@ -19,7 +19,6 @@
 
 ** Split =input file= into chunks and metadata [p1(hash, size), p2(hash, size), ...] :DONE:
 
-*** Implementation
 1. =metadata_file::open=: Inputs: file path, max size per chunk.
    - Maps the input file into memory.
    - Calculates the number of chunks.
