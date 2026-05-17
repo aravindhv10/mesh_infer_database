@@ -26,7 +26,7 @@
 2. =metadata_file::write_file_to_prefix=: Inputs: path of prefix dir.
    - Actually force chunks into memory using =madvise= and hashing.
    - write it out to file using =hashed_chunk= as intermediates.
-
+   - Return the metadata needed to reconstruct the file.
 
 * Cargo.toml
 
@@ -670,7 +670,6 @@ impl dir_watcher {
       './GIT/commit_and_push.sh'
   " "log" "err")
 #+end_src
-
 
       #[inline(always)]
       pub fn get_len(&self) -> usize {
