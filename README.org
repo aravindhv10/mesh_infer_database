@@ -18,7 +18,6 @@
   2. Hand over the chunks for writing.
 
 ** Split =input file= into chunks and metadata [p1(hash, size), p2(hash, size), ...] :DONE:
-
 1. =metadata_file::open=: Inputs: file path, max size per chunk.
    - Maps the input file into memory.
    - Calculates the number of chunks.
@@ -26,6 +25,9 @@
    - Actually force chunks into memory using =madvise= and hashing.
    - write it out to file using =hashed_chunk= as intermediates.
    - Return the metadata needed to reconstruct the file.
+
+** Implement reading each chunk from the store.                        :DONE:
+- =metadata_chunk::read_from_prefix= implements the reading from 1 chunk.
 
 * Cargo.toml
 
@@ -291,7 +293,6 @@ impl dir_watcher {
       pub chunk: &'a [u8],
       pub hash: blake3::Hash,
   }
-
 
   impl metadata_chunk {
       #[inline(always)]

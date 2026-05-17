@@ -33,7 +33,6 @@ pub struct hashed_chunk<'a> {
     pub hash: blake3::Hash,
 }
 
-
 impl metadata_chunk {
     #[inline(always)]
     pub fn read_from_prefix(
