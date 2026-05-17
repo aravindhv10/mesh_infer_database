@@ -1,3 +1,10 @@
+* Goals
+
+** Split =input file= into chunks and metadata [p1(hash, size), p2(hash, size), ...]
+
+*** Implementation
+1. =metadata_file= memory maps the input
+
 * Cargo.toml
 
 ** Basic headers
