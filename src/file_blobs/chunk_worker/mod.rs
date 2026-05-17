@@ -18,6 +18,11 @@ fn construct_name(
     Ok(tmp.join(format!("{:x}", size)))
 }
 
+pub struct standalone_chunk<'a> {
+    pub chunk: Vec<u8>,
+    pub hash: &'a blake3::Hash,
+}
+
 pub struct metadata_chunk {
     pub hash: blake3::Hash,
     pub size: usize,
@@ -28,10 +33,6 @@ pub struct hashed_chunk<'a> {
     pub hash: blake3::Hash,
 }
 
-pub struct standalone_chunk<'a> {
-    pub chunk: Vec<u8>,
-    pub hash: &'a blake3::Hash,
-}
 
 impl metadata_chunk {
     #[inline(always)]

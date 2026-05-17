@@ -1,9 +1,30 @@
 * Goals
 
-** Split =input file= into chunks and metadata [p1(hash, size), p2(hash, size), ...]
+** Main structs:
+- =standalone_chunk=:
+  1. Hold the data along with the hash.
+
+- =metadata_chunk=:
+  1. Hold metadata (hash, size) of the chunk for future retrieval.
+  2. Read the file and provide the data.
+
+- =hashed_chunk=:
+  1. Hash the chunks.
+  2. Write out the chunks into files.
+
+- =metadata_file=:
+  1. Read the file and do the chunk splitting.
+  2. Hand over the chunks for writing.
+
+** Split =input file= into chunks and metadata [p1(hash, size), p2(hash, size), ...] :DONE:
 
 *** Implementation
-1. =metadata_file= memory maps the input
+1. =metadata_file::open=: Inputs: file path, max size per chunk.
+   - Maps the input file into memory.
+   - Calculates the number of chunks.
+2. =metadata_file::write_file_to_prefix=: Inputs: path of prefix dir.
+   - Actually force chunks into memory using =madvise= and 
+
 
 * Cargo.toml
 
@@ -255,6 +276,11 @@ impl dir_watcher {
       Ok(tmp.join(format!("{:x}", size)))
   }
 
+  pub struct standalone_chunk<'a> {
+      pub chunk: Vec<u8>,
+      pub hash: &'a blake3::Hash,
+  }
+
   pub struct metadata_chunk {
       pub hash: blake3::Hash,
       pub size: usize,
@@ -265,10 +291,6 @@ impl dir_watcher {
       pub hash: blake3::Hash,
   }
 
-  pub struct standalone_chunk<'a> {
-      pub chunk: Vec<u8>,
-      pub hash: &'a blake3::Hash,
-  }
 
   impl metadata_chunk {
       #[inline(always)]
