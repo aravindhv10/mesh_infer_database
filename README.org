@@ -18,7 +18,13 @@
   2. Hand over the chunks for writing.
 
 ** Split =input file= into chunks and metadata [p1(hash, size), p2(hash, size), ...] :DONE:
-1. =metadata_file::open=: Inputs: file path, max size per chunk.
+_INPUT_: ~file_path~, ~output_prefix_directory_path~
+_OUTPUT_: ~table~
+_EFFECT_:
+    1. Write ~chunk~ inside ~output_prefix_directory_path~
+*** Implementation details
+1. =metadata_file::open=:
+    _INPUTS_: ~file_path~, ~max_size_per_chunk~.
    - Maps the input file into memory.
    - Calculates the number of chunks.
 2. =metadata_file::write_file_to_prefix=: Inputs: path of prefix dir.
@@ -26,7 +32,9 @@
    - write it out to file using =hashed_chunk= as intermediates.
    - Return the metadata needed to reconstruct the file.
 
-** Implement reading each chunk from the store.                        :DONE:
+** Implement reading each chunk from the store.
+Takes ~tables~ and produces ~~
+
 - =metadata_chunk::read_from_prefix= implements the reading from 1 chunk.
 
 * Cargo.toml
