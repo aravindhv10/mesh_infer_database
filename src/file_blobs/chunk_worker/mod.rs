@@ -93,3 +93,5 @@ impl<'a> standalone_chunk<'a> {
         Ok(())
     }
 }
+
+fn write_table_2_file() {}

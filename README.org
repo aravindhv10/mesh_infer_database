@@ -367,6 +367,8 @@ impl dir_watcher {
           Ok(())
       }
   }
+
+  fn write_table_2_file() {}
 #+end_src
 
 metadata_chunk::read_from_prefix
