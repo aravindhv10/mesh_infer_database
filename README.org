@@ -24,16 +24,21 @@ _EFFECT_:
     1. Write ~chunk~ inside ~output_prefix_directory_path~
 *** Implementation details
 1. =metadata_file::open=:
-    _INPUTS_: ~file_path~, ~max_size_per_chunk~.
+    _INPUT_: ~file_path~, ~max_size_per_chunk~.
+    _OUTPUT_: ~metadata_file~
    - Maps the input file into memory.
    - Calculates the number of chunks.
-2. =metadata_file::write_file_to_prefix=: Inputs: path of prefix dir.
+2. =metadata_file::write_file_to_prefix=:
+    _INPUT_: ~output_prefix_directory_path~
+    _OUTPUT_: ~table~
+    _EFFECT_: Write chunks to files under prefix
    - Actually force chunks into memory using =madvise= and hashing.
    - write it out to file using =hashed_chunk= as intermediates.
    - Return the metadata needed to reconstruct the file.
 
 ** Implement reading each chunk from the store.
-Takes ~tables~ and produces ~~
+_INPUT_: ~table~
+_OUTPUT_: ~file_generator~
 
 - =metadata_chunk::read_from_prefix= implements the reading from 1 chunk.
 
@@ -342,8 +347,22 @@ impl dir_watcher {
       }
   }
 
-  impl<'a> standalone_chunk<'a> {}
+  impl<'a> standalone_chunk<'a> {
+      fn from(
+          element : &'a metadata_chunk,
+          path_dir_prefix: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<Self> {
+          return Ok(
+              Self {
+                  chunk: element.read_from_prefix(&path_dir_prefix)?,
+                  hash: &element.hash
+              }
+          );
+      }
+  }
 #+end_src
+
+metadata_chunk::read_from_prefix
 
 *** Code for the class which chunks and hashes each file
 #+begin_src rust :mkdirp yes :tangle ./src/file_blobs/mod.rs

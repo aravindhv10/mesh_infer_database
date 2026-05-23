@@ -73,4 +73,16 @@ impl<'a> hashed_chunk<'a> {
     }
 }
 
-impl<'a> standalone_chunk<'a> {}
+impl<'a> standalone_chunk<'a> {
+    fn from(
+        element : &'a metadata_chunk,
+        path_dir_prefix: impl AsRef<std::path::Path>,
+    ) -> anyhow::Result<Self> {
+        return Ok(
+            Self {
+                chunk: element.read_from_prefix(&path_dir_prefix)?,
+                hash: &element.hash
+            }
+        );
+    }
+}
