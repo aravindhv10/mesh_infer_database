@@ -158,7 +158,7 @@ fn main() -> anyhow::Result<()> {
         );
     });
 
-    file_blobs::chunk_writer::write_table_2_file(
+    file_blobs::write_table_2_file(
         /*tables_input: Vec<metadata_chunk> =*/ &tmp,
         /*path_dir_prefix_input: impl AsRef<std::path::Path> =*/ "/home/asd/dest",
         /*path_file_output: impl AsRef<std::path::Path> =*/ "./new.mp4",
