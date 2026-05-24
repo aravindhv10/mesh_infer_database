@@ -102,7 +102,7 @@ fn write_table_2_file(
     let mut fd = std::fs::File::create(/*path =*/ path_file_output.as_ref())?;
 
     for i in tables_input.iter() {
-        i.read_from_prefix(/*path_dir_prefix =*/ path_dir_prefix_input.as_ref())?;
+        standalone_chunk::from(&i, path_dir_prefix_input.as_ref())?.append_to_file(&mut fd)?;
     }
 
     return Ok(());
