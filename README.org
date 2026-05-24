@@ -368,7 +368,19 @@ impl dir_watcher {
       }
   }
 
-  fn write_table_2_file() {}
+  fn write_table_2_file(
+      tables_input: Vec<metadata_chunk>,
+      path_dir_prefix_input: impl AsRef<std::path::Path>,
+      path_file_output: impl AsRef<std::path::Path>,
+  ) -> anyhow::Result<()> {
+      let mut fd = std::fs::File::create(/*path =*/ path_file_output.as_ref())?;
+
+      for i in tables_input.iter() {
+          i.read_from_prefix(/*path_dir_prefix =*/ path_dir_prefix_input.as_ref())?;
+      }
+
+      return Ok(());
+  }
 #+end_src
 
 metadata_chunk::read_from_prefix
