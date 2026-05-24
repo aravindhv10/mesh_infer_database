@@ -94,8 +94,8 @@ impl<'a> standalone_chunk<'a> {
     }
 }
 
-fn write_table_2_file(
-    tables_input: Vec<metadata_chunk>,
+pub fn write_table_2_file(
+    tables_input: &Vec<metadata_chunk>,
     path_dir_prefix_input: impl AsRef<std::path::Path>,
     path_file_output: impl AsRef<std::path::Path>,
 ) -> anyhow::Result<()> {
