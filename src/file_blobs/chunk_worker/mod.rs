@@ -78,7 +78,7 @@ impl<'a> hashed_chunk<'a> {
 }
 
 impl<'a> standalone_chunk<'a> {
-    fn from(
+    pub fn from(
         element: &'a metadata_chunk,
         path_dir_prefix: impl AsRef<std::path::Path>,
     ) -> anyhow::Result<Self> {
@@ -88,7 +88,7 @@ impl<'a> standalone_chunk<'a> {
         });
     }
 
-    fn append_to_file(&self, fd: &mut std::fs::File) -> anyhow::Result<()> {
+    pub fn append_to_file(&self, fd: &mut std::fs::File) -> anyhow::Result<()> {
         fd.write_all(self.chunk.as_ref())?;
         Ok(())
     }
