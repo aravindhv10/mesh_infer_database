@@ -146,7 +146,7 @@ fn dir_watcher_main() -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
-    let res = file_blobs::metadata_file::open("./video.mp4", 1 << 16)?;
+    let res = file_blobs::metadata_file::open("./video.mp4", 16)?;
     let tmp = res.write_file_to_prefix(
         /*path_dir_prefix: &std::path::Path =*/ "/home/asd/dest",
     )?;
