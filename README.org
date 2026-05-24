@@ -368,6 +368,16 @@ impl dir_watcher {
       }
   }
 
+#+end_src
+
+metadata_chunk::read_from_prefix
+
+*** Code for the class which chunks and hashes each file
+#+begin_src rust :mkdirp yes :tangle ./src/file_blobs/mod.rs
+  mod chunk_worker;
+
+  use chunk_worker::*;
+
   pub fn write_table_2_file(
       tables_input: &Vec<metadata_chunk>,
       path_dir_prefix_input: impl AsRef<std::path::Path>,
@@ -381,15 +391,6 @@ impl dir_watcher {
 
       return Ok(());
   }
-#+end_src
-
-metadata_chunk::read_from_prefix
-
-*** Code for the class which chunks and hashes each file
-#+begin_src rust :mkdirp yes :tangle ./src/file_blobs/mod.rs
-  mod chunk_worker;
-
-  use chunk_worker::*;
 
   pub struct metadata_file {
       fd: std::fs::File,
