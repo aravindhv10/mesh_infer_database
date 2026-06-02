@@ -146,8 +146,10 @@ fn dir_watcher_main() -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
-    let res = file_blobs::metadata_file::open("./Cargo.toml", 20)?;
-    let tmp = res.write_file_to_prefix(/*path_dir_prefix: &std::path::Path =*/ "./dest")?;
+    let res = file_blobs::metadata_file::open("./video.mp4", 16)?;
+    let tmp = res.write_file_to_prefix(
+        /*path_dir_prefix: &std::path::Path =*/ "/home/asd/dest",
+    )?;
     tmp.iter().for_each(|i| {
         println!(
             "{}: {}",
@@ -155,5 +157,12 @@ fn main() -> anyhow::Result<()> {
             i.size.to_string().as_str()
         );
     });
+
+    file_blobs::write_table_2_file(
+        /*tables_input: Vec<metadata_chunk> =*/ &tmp,
+        /*path_dir_prefix_input: impl AsRef<std::path::Path> =*/ "/home/asd/dest",
+        /*path_file_output: impl AsRef<std::path::Path> =*/ "./new.mp4",
+    )?;
+
     Ok(())
 }

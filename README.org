@@ -18,15 +18,28 @@
   2. Hand over the chunks for writing.
 
 ** Split =input file= into chunks and metadata [p1(hash, size), p2(hash, size), ...] :DONE:
-1. =metadata_file::open=: Inputs: file path, max size per chunk.
+_INPUT_: ~file_path~, ~output_prefix_directory_path~
+_OUTPUT_: ~table~
+_EFFECT_:
+    1. Write ~chunk~ inside ~output_prefix_directory_path~
+*** Implementation details
+1. =metadata_file::open=:
+    _INPUT_: ~file_path~, ~max_size_per_chunk~.
+    _OUTPUT_: ~metadata_file~
    - Maps the input file into memory.
    - Calculates the number of chunks.
-2. =metadata_file::write_file_to_prefix=: Inputs: path of prefix dir.
+2. =metadata_file::write_file_to_prefix=:
+    _INPUT_: ~output_prefix_directory_path~
+    _OUTPUT_: ~table~
+    _EFFECT_: Write chunks to files under prefix
    - Actually force chunks into memory using =madvise= and hashing.
    - write it out to file using =hashed_chunk= as intermediates.
    - Return the metadata needed to reconstruct the file.
 
-** Implement reading each chunk from the store.                        :DONE:
+** Implement reading each chunk from the store.
+_INPUT_: ~table~
+_OUTPUT_: ~file_generator~
+
 - =metadata_chunk::read_from_prefix= implements the reading from 1 chunk.
 
 * Cargo.toml
@@ -270,7 +283,11 @@ impl dir_watcher {
   ) -> anyhow::Result<std::path::PathBuf> {
       let res = hash.to_hex().to_string();
 
-      let tmp = path_dir_prefix.as_ref().join(&res[0..2]).join(&res[2..4]).join(&res);
+      let tmp = path_dir_prefix
+          .as_ref()
+          .join(&res[0..2])
+          .join(&res[2..4])
+          .join(&res);
 
       if create_dir {
           std::fs::create_dir_all(&tmp)?;
@@ -334,14 +351,46 @@ impl dir_watcher {
       }
   }
 
-  impl<'a> standalone_chunk<'a> {}
+  impl<'a> standalone_chunk<'a> {
+      pub fn from(
+          element: &'a metadata_chunk,
+          path_dir_prefix: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<Self> {
+          return Ok(Self {
+              chunk: element.read_from_prefix(&path_dir_prefix)?,
+              hash: &element.hash,
+          });
+      }
+
+      pub fn append_to_file(&self, fd: &mut std::fs::File) -> anyhow::Result<()> {
+          fd.write_all(self.chunk.as_ref())?;
+          Ok(())
+      }
+  }
+
 #+end_src
+
+metadata_chunk::read_from_prefix
 
 *** Code for the class which chunks and hashes each file
 #+begin_src rust :mkdirp yes :tangle ./src/file_blobs/mod.rs
   mod chunk_worker;
 
   use chunk_worker::*;
+
+  pub fn write_table_2_file(
+      tables_input: &Vec<metadata_chunk>,
+      path_dir_prefix_input: impl AsRef<std::path::Path>,
+      path_file_output: impl AsRef<std::path::Path>,
+  ) -> anyhow::Result<()> {
+      let mut fd = std::fs::File::create(/*path =*/ path_file_output.as_ref())?;
+
+      for i in tables_input.iter() {
+          standalone_chunk::from(&i, path_dir_prefix_input.as_ref())?.append_to_file(&mut fd)?;
+      }
+
+      return Ok(());
+  }
 
   pub struct metadata_file {
       fd: std::fs::File,
@@ -559,8 +608,10 @@ impl dir_watcher {
   }
 
   fn main() -> anyhow::Result<()> {
-      let res = file_blobs::metadata_file::open("./Cargo.toml", 20)?;
-      let tmp = res.write_file_to_prefix(/*path_dir_prefix: &std::path::Path =*/ "./dest")?;
+      let res = file_blobs::metadata_file::open("./video.mp4", 16)?;
+      let tmp = res.write_file_to_prefix(
+          /*path_dir_prefix: &std::path::Path =*/ "/home/asd/dest",
+      )?;
       tmp.iter().for_each(|i| {
           println!(
               "{}: {}",
@@ -568,6 +619,13 @@ impl dir_watcher {
               i.size.to_string().as_str()
           );
       });
+
+      file_blobs::write_table_2_file(
+          /*tables_input: Vec<metadata_chunk> =*/ &tmp,
+          /*path_dir_prefix_input: impl AsRef<std::path::Path> =*/ "/home/asd/dest",
+          /*path_file_output: impl AsRef<std::path::Path> =*/ "./new.mp4",
+      )?;
+
       Ok(())
   }
 #+end_src

@@ -2,6 +2,20 @@ mod chunk_worker;
 
 use chunk_worker::*;
 
+pub fn write_table_2_file(
+    tables_input: &Vec<metadata_chunk>,
+    path_dir_prefix_input: impl AsRef<std::path::Path>,
+    path_file_output: impl AsRef<std::path::Path>,
+) -> anyhow::Result<()> {
+    let mut fd = std::fs::File::create(/*path =*/ path_file_output.as_ref())?;
+
+    for i in tables_input.iter() {
+        standalone_chunk::from(&i, path_dir_prefix_input.as_ref())?.append_to_file(&mut fd)?;
+    }
+
+    return Ok(());
+}
+
 pub struct metadata_file {
     fd: std::fs::File,
     mmap: memmap2::Mmap,
