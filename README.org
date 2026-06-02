@@ -55,7 +55,7 @@
   tokio = { version = "1", features = ["full"] }
 #+end_src
 
-*** All iceoryx2 related
+*** COMMENT All iceoryx2 related
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   iceoryx2-bb-concurrency = { version = "0.8.1", features = ["std"] }
   iceoryx2-bb-container = "0.8.1"
