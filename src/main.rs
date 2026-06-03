@@ -16,7 +16,7 @@ fn dir_watcher_main() -> anyhow::Result<()> {
     return Ok(());
 }
 
-fn main() -> anyhow::Result<()> {
+fn file_split_merge_main() -> anyhow::Result<()> {
     let res = file_blobs::metadata_file::open("./video.mp4", 16)?;
     let tmp = res.write_file_to_prefix(
         /*path_dir_prefix: &std::path::Path =*/ "/home/asd/dest",
@@ -36,4 +36,8 @@ fn main() -> anyhow::Result<()> {
     )?;
 
     Ok(())
+}
+
+fn main() -> anyhow::Result<()> {
+    file_split_merge_main()
 }

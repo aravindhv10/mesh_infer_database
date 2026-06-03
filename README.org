@@ -451,7 +451,7 @@ _OUTPUT_: ~file_generator~
       return Ok(());
   }
 
-  fn main() -> anyhow::Result<()> {
+  fn file_split_merge_main() -> anyhow::Result<()> {
       let res = file_blobs::metadata_file::open("./video.mp4", 16)?;
       let tmp = res.write_file_to_prefix(
           /*path_dir_prefix: &std::path::Path =*/ "/home/asd/dest",
@@ -471,6 +471,10 @@ _OUTPUT_: ~file_generator~
       )?;
 
       Ok(())
+  }
+
+  fn main() -> anyhow::Result<()> {
+      file_split_merge_main()
   }
 #+end_src
 
