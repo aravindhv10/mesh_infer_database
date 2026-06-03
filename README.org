@@ -1,5 +1,7 @@
 * Goals
 
+** Check fully static builds
+
 ** Main structs:
 
 *** =standalone_chunk=:
@@ -42,6 +44,8 @@ _OUTPUT_: ~file_generator~
 
 - =metadata_chunk::read_from_prefix= implements the reading from 1 chunk.
 
+  
+
 * Cargo.toml
 
 ** Basic headers
@@ -55,10 +59,6 @@ _OUTPUT_: ~file_generator~
 ** Dependencies
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   [dependencies]
-#+end_src
-
-*** Standard
-#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   anyhow = "1"
   blake3 = { version = "1", features = ["mmap", "rayon", "serde"] }
   inotify = "0.11"
@@ -67,31 +67,6 @@ _OUTPUT_: ~file_generator~
   mimalloc = "0.1"
   tokio = { version = "1", features = ["full"] }
 #+end_src
-
-*** COMMENT All iceoryx2 related
-#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
-  iceoryx2-bb-concurrency = { version = "0.8.1", features = ["std"] }
-  iceoryx2-bb-container = "0.8.1"
-  iceoryx2-bb-derive-macros = "0.8.1"
-  iceoryx2-bb-elementary-traits = "0.8.1"
-  iceoryx2-bb-elementary = { version = "0.8.1", features = ["std"] }
-  iceoryx2-bb-posix = { version = "0.8.1", features = ["std"] }
-  iceoryx2-bb-system-types = "0.8.1"
-  iceoryx2-cal = { version = "0.8.1", features = ["std"] }
-  iceoryx2-log = { version = "0.8.1", features = ["std"] }
-  iceoryx2 = { version = "0.8.1", features = ["std"] }
-#+end_src
-
-cargo add   iceoryx2-log -F std
-cargo add   iceoryx2  -F std
-cargo add   iceoryx2-cal  -F std
-cargo add   iceoryx2-bb-concurrency  -F std
-cargo add   iceoryx2-bb-container
-cargo add   iceoryx2-bb-derive-macros
-cargo add   iceoryx2-bb-elementary  -F std
-cargo add   iceoryx2-bb-elementary-traits
-cargo add   iceoryx2-bb-system-types
-cargo add   iceoryx2-bb-posix  -F std
 
 * Script to build
 
@@ -462,9 +437,6 @@ cargo add   iceoryx2-bb-posix  -F std
   static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
   use std::any::Any;
-
-  // use iceoryx2::prelude::ZeroCopySend;
-  // use iceoryx2::prelude::*;
 
   mod dir_watcher;
   mod file_blobs;

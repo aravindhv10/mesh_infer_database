@@ -3,9 +3,6 @@ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 use std::any::Any;
 
-// use iceoryx2::prelude::ZeroCopySend;
-// use iceoryx2::prelude::*;
-
 mod dir_watcher;
 mod file_blobs;
 
