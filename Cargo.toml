@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-
 anyhow = "1"
 blake3 = { version = "1", features = ["mmap", "rayon", "serde"] }
 inotify = "0.11"
@@ -12,3 +11,5 @@ loro = "1"
 memmap2 = "0.9"
 mimalloc = "0.1"
 tokio = { version = "1", features = ["full"] }
+zenoh-ext = "1"
+zenoh = { version = "1", features = ["shared-memory", "zenoh-shm"] }

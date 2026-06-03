@@ -1,5 +1,7 @@
 * Goals
 
+** Check fully static builds
+
 ** Main structs:
 
 *** =standalone_chunk=:
@@ -42,6 +44,8 @@ _OUTPUT_: ~file_generator~
 
 - =metadata_chunk::read_from_prefix= implements the reading from 1 chunk.
 
+  
+
 * Cargo.toml
 
 ** Basic headers
@@ -55,10 +59,6 @@ _OUTPUT_: ~file_generator~
 ** Dependencies
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   [dependencies]
-#+end_src
-
-*** Standard
-#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   anyhow = "1"
   blake3 = { version = "1", features = ["mmap", "rayon", "serde"] }
   inotify = "0.11"
@@ -66,32 +66,9 @@ _OUTPUT_: ~file_generator~
   memmap2 = "0.9"
   mimalloc = "0.1"
   tokio = { version = "1", features = ["full"] }
+  zenoh-ext = "1"
+  zenoh = { version = "1", features = ["shared-memory", "zenoh-shm"] }
 #+end_src
-
-*** COMMENT All iceoryx2 related
-#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
-  iceoryx2-bb-concurrency = { version = "0.8.1", features = ["std"] }
-  iceoryx2-bb-container = "0.8.1"
-  iceoryx2-bb-derive-macros = "0.8.1"
-  iceoryx2-bb-elementary-traits = "0.8.1"
-  iceoryx2-bb-elementary = { version = "0.8.1", features = ["std"] }
-  iceoryx2-bb-posix = { version = "0.8.1", features = ["std"] }
-  iceoryx2-bb-system-types = "0.8.1"
-  iceoryx2-cal = { version = "0.8.1", features = ["std"] }
-  iceoryx2-log = { version = "0.8.1", features = ["std"] }
-  iceoryx2 = { version = "0.8.1", features = ["std"] }
-#+end_src
-
-cargo add   iceoryx2-log -F std
-cargo add   iceoryx2  -F std
-cargo add   iceoryx2-cal  -F std
-cargo add   iceoryx2-bb-concurrency  -F std
-cargo add   iceoryx2-bb-container
-cargo add   iceoryx2-bb-derive-macros
-cargo add   iceoryx2-bb-elementary  -F std
-cargo add   iceoryx2-bb-elementary-traits
-cargo add   iceoryx2-bb-system-types
-cargo add   iceoryx2-bb-posix  -F std
 
 * Script to build
 
@@ -115,157 +92,157 @@ cargo add   iceoryx2-bb-posix  -F std
 
 ** struct for inotify related file alerting
 #+begin_src rust :mkdirp yes :tangle ./src/dir_watcher/mod.rs
-pub struct dir_watcher {
-    notify: inotify::Inotify,
-    watchdescriptor: inotify::WatchDescriptor,
-    buffer: Vec<u8>,
-    path_dir_prefix_input: std::path::PathBuf,
-    first_run: bool,
-}
+  pub struct dir_watcher {
+      notify: inotify::Inotify,
+      watchdescriptor: inotify::WatchDescriptor,
+      buffer: Vec<u8>,
+      path_dir_prefix_input: std::path::PathBuf,
+      first_run: bool,
+  }
 
-impl dir_watcher {
-    pub fn new(path_dir_prefix_input: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
-        let notify = inotify::Inotify::init()?;
+  impl dir_watcher {
+      pub fn new(path_dir_prefix_input: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
+          let notify = inotify::Inotify::init()?;
 
-        let watchdescriptor = notify.watches().add(
-            path_dir_prefix_input.as_ref(),
-            inotify::WatchMask::ATTRIB
-                | inotify::WatchMask::CREATE
-                | inotify::WatchMask::CLOSE_WRITE
-                | inotify::WatchMask::CLOSE_NOWRITE
-                | inotify::WatchMask::MOVED_TO,
-        )?;
+          let watchdescriptor = notify.watches().add(
+              path_dir_prefix_input.as_ref(),
+              inotify::WatchMask::ATTRIB
+                  | inotify::WatchMask::CREATE
+                  | inotify::WatchMask::CLOSE_WRITE
+                  | inotify::WatchMask::CLOSE_NOWRITE
+                  | inotify::WatchMask::MOVED_TO,
+          )?;
 
-        Ok(Self {
-            notify: notify,
-            watchdescriptor: watchdescriptor,
-            buffer: vec![0; 1 << 21],
-            path_dir_prefix_input: path_dir_prefix_input.as_ref().to_path_buf(),
-            first_run: true,
-        })
-    }
+          Ok(Self {
+              notify: notify,
+              watchdescriptor: watchdescriptor,
+              buffer: vec![0; 1 << 21],
+              path_dir_prefix_input: path_dir_prefix_input.as_ref().to_path_buf(),
+              first_run: true,
+          })
+      }
 
-    fn get_all_files(
-        &mut self,
-        ret: &mut std::collections::HashSet<std::path::PathBuf>,
-    ) -> anyhow::Result<()> {
-        ret.extend(
-            std::fs::read_dir(&self.path_dir_prefix_input)?.filter_map(|entry| {
-                entry
-                    .map(|e| e.path())
-                    .map_err(|e| eprintln!("Failed to read file: {}", e))
-                    .ok()
-            }),
-        );
+      fn get_all_files(
+          &mut self,
+          ret: &mut std::collections::HashSet<std::path::PathBuf>,
+      ) -> anyhow::Result<()> {
+          ret.extend(
+              std::fs::read_dir(&self.path_dir_prefix_input)?.filter_map(|entry| {
+                  entry
+                      .map(|e| e.path())
+                      .map_err(|e| eprintln!("Failed to read file: {}", e))
+                      .ok()
+              }),
+          );
 
-        Ok(())
-    }
+          Ok(())
+      }
 
-    fn get_new_files(
-        &mut self,
-        ret: &mut std::collections::HashSet<std::path::PathBuf>,
-    ) -> anyhow::Result<()> {
-        ret.extend(
-            self.notify
-                .read_events_blocking(self.buffer.as_mut_slice())?
-                .into_iter()
-                .map(|event| event.name)
-                .flatten()
-                .map(|name| self.path_dir_prefix_input.join(name)),
-        );
+      fn get_new_files(
+          &mut self,
+          ret: &mut std::collections::HashSet<std::path::PathBuf>,
+      ) -> anyhow::Result<()> {
+          ret.extend(
+              self.notify
+                  .read_events_blocking(self.buffer.as_mut_slice())?
+                  .into_iter()
+                  .map(|event| event.name)
+                  .flatten()
+                  .map(|name| self.path_dir_prefix_input.join(name)),
+          );
 
-        Ok(())
-    }
+          Ok(())
+      }
 
-    fn get_new_files_immediate(
-        &mut self,
-        ret: &mut std::collections::HashSet<std::path::PathBuf>,
-    ) -> anyhow::Result<()> {
-        ret.extend(
-            self.notify
-                .read_events(self.buffer.as_mut_slice())?
-                .into_iter()
-                .map(|event| event.name)
-                .flatten()
-                .map(|name| self.path_dir_prefix_input.join(name)),
-        );
+      fn get_new_files_immediate(
+          &mut self,
+          ret: &mut std::collections::HashSet<std::path::PathBuf>,
+      ) -> anyhow::Result<()> {
+          ret.extend(
+              self.notify
+                  .read_events(self.buffer.as_mut_slice())?
+                  .into_iter()
+                  .map(|event| event.name)
+                  .flatten()
+                  .map(|name| self.path_dir_prefix_input.join(name)),
+          );
 
-        Ok(())
-    }
+          Ok(())
+      }
 
-    fn look_start(
-        &mut self,
-        ret: &mut std::collections::HashSet<std::path::PathBuf>,
-    ) -> anyhow::Result<()> {
-        if self.first_run {
-            self.get_all_files(ret)?;
-            self.first_run = false;
-        } else {
-            self.get_new_files(ret)?;
-        }
+      fn look_start(
+          &mut self,
+          ret: &mut std::collections::HashSet<std::path::PathBuf>,
+      ) -> anyhow::Result<()> {
+          if self.first_run {
+              self.get_all_files(ret)?;
+              self.first_run = false;
+          } else {
+              self.get_new_files(ret)?;
+          }
 
-        Ok(())
-    }
+          Ok(())
+      }
 
-    fn look_more(
-        &mut self,
-        ret: &mut std::collections::HashSet<std::path::PathBuf>,
-        timeout: std::time::Duration,
-        batch_size: usize,
-        mut num_retries: u8,
-    ) -> anyhow::Result<()> {
-        let start_time = std::time::Instant::now();
+      fn look_more(
+          &mut self,
+          ret: &mut std::collections::HashSet<std::path::PathBuf>,
+          timeout: std::time::Duration,
+          batch_size: usize,
+          mut num_retries: u8,
+      ) -> anyhow::Result<()> {
+          let start_time = std::time::Instant::now();
 
-        while (ret.len() < batch_size) && (start_time.elapsed() < timeout) && (num_retries > 0) {
-            match self.get_new_files_immediate(ret) {
-                Ok(_) => {
-                    num_retries -= 1;
-                }
-                Err(_) => {}
-            }
-        }
+          while (ret.len() < batch_size) && (start_time.elapsed() < timeout) && (num_retries > 0) {
+              match self.get_new_files_immediate(ret) {
+                  Ok(_) => {
+                      num_retries -= 1;
+                  }
+                  Err(_) => {}
+              }
+          }
 
-        Ok(())
-    }
+          Ok(())
+      }
 
-    fn get_batch(
-        &mut self,
-        ret: &mut std::collections::HashSet<std::path::PathBuf>,
-        timeout: std::time::Duration,
-        batch_size: usize,
-        num_retries: u8,
-    ) -> anyhow::Result<()> {
-        self.look_start(ret)?;
+      fn get_batch(
+          &mut self,
+          ret: &mut std::collections::HashSet<std::path::PathBuf>,
+          timeout: std::time::Duration,
+          batch_size: usize,
+          num_retries: u8,
+      ) -> anyhow::Result<()> {
+          self.look_start(ret)?;
 
-        self.look_more(
-            /*ret: &mut std::collections::HashSet<std::path::PathBuf> =*/ ret,
-            /*timeout: std::time::Duration =*/ timeout,
-            /*batch_size: usize =*/ batch_size,
-            /*mut num_retries: u8 =*/ num_retries,
-        )?;
+          self.look_more(
+              /*ret: &mut std::collections::HashSet<std::path::PathBuf> =*/ ret,
+              /*timeout: std::time::Duration =*/ timeout,
+              /*batch_size: usize =*/ batch_size,
+              /*mut num_retries: u8 =*/ num_retries,
+          )?;
 
-        Ok(())
-    }
+          Ok(())
+      }
 
-    pub fn get_files(
-        &mut self,
-        timeout: std::time::Duration,
-        batch_size: usize,
-        num_retries: u8,
-    ) -> anyhow::Result<std::collections::HashSet<std::path::PathBuf>> {
-        let mut ret: std::collections::HashSet<std::path::PathBuf> =
-            std::collections::HashSet::new();
+      pub fn get_files(
+          &mut self,
+          timeout: std::time::Duration,
+          batch_size: usize,
+          num_retries: u8,
+      ) -> anyhow::Result<std::collections::HashSet<std::path::PathBuf>> {
+          let mut ret: std::collections::HashSet<std::path::PathBuf> =
+              std::collections::HashSet::new();
 
-        self.get_batch(
-            /*ret: &mut std::collections::HashSet<std::path::PathBuf> =*/ &mut ret,
-            /*timeout: std::time::Duration =*/ timeout,
-            /*batch_size: usize =*/ batch_size,
-            /*mut num_retries: u8 =*/ num_retries,
-        )?;
+          self.get_batch(
+              /*ret: &mut std::collections::HashSet<std::path::PathBuf> =*/ &mut ret,
+              /*timeout: std::time::Duration =*/ timeout,
+              /*batch_size: usize =*/ batch_size,
+              /*mut num_retries: u8 =*/ num_retries,
+          )?;
 
-        return Ok(ret);
-    }
-}
+          return Ok(ret);
+      }
+  }
 #+end_src
 
 ** Code for file blob
@@ -370,8 +347,6 @@ impl dir_watcher {
 
 #+end_src
 
-metadata_chunk::read_from_prefix
-
 *** Code for the class which chunks and hashes each file
 #+begin_src rust :mkdirp yes :tangle ./src/file_blobs/mod.rs
   mod chunk_worker;
@@ -465,137 +440,8 @@ metadata_chunk::read_from_prefix
 
   use std::any::Any;
 
-  // use iceoryx2::prelude::ZeroCopySend;
-  use iceoryx2::prelude::*;
-
   mod dir_watcher;
   mod file_blobs;
-
-  #[derive(ZeroCopySend, Debug)]
-  #[repr(C)]
-  struct message {
-      data: i128,
-  }
-
-  fn get_node() -> anyhow::Result<(
-      iceoryx2::node::Node<iceoryx2::service::ipc::Service>,
-      iceoryx2::service::service_name::ServiceName,
-  )> {
-      let node = iceoryx2::node::NodeBuilder::new().create::<iceoryx2::service::ipc::Service>()?;
-      let servicename = iceoryx2::service::service_name::ServiceName::new("testing")?;
-      return Ok((node, servicename));
-  }
-
-  fn run_sender() -> anyhow::Result<()> {
-      eprintln!("run_sender");
-      let (node, servicename) = get_node()?;
-
-      let publisher = node
-          .service_builder(&servicename)
-          .publish_subscribe::<message>()
-          .open_or_create()?
-          .publisher_builder()
-          .create()?;
-
-      std::thread::sleep(std::time::Duration::from_secs(1));
-
-      let sample = publisher.loan_uninit()?;
-
-      let res = sample.write_payload(message { data: 123 as i128 }).send()?;
-
-      eprintln!("Wrote size {}", res);
-
-      Ok(())
-  }
-
-  fn run_receiver() -> anyhow::Result<()> {
-      eprintln!("run_receiver");
-      let (node, servicename) = get_node()?;
-
-      let subscriber = node
-          .service_builder(&servicename)
-          .publish_subscribe::<message>()
-          .open_or_create()?
-          .subscriber_builder()
-          .create()?;
-
-      let listener = node
-          .service_builder(&servicename)
-          .event()
-          .open_or_create()?
-          .listener_builder()
-          .create()?;
-
-      std::thread::sleep(std::time::Duration::from_secs(1));
-
-      let res = listener.timed_wait_one(std::time::Duration::from_secs(5))?;
-
-      let res = subscriber.receive()?;
-
-      match res {
-          Some(o) => {
-              eprintln!("Received message {}", o.data);
-          }
-          None => {
-              eprint!("Did not receive any message");
-          }
-      }
-
-      Ok(())
-  }
-
-  fn run_both(self_path: &str) -> anyhow::Result<()> {
-      let mut child_send = std::process::Command::new(self_path).arg("send").spawn()?;
-
-      let mut child_receive = std::process::Command::new(self_path)
-          .arg("receive")
-          .spawn()?;
-
-      let status_send = child_send.wait()?;
-      let status_receive = child_receive.wait()?;
-
-      if !status_send.success() {
-          eprintln!("Sender failed");
-          return Err(anyhow::format_err!("Sender failed"));
-      }
-
-      if !status_receive.success() {
-          eprintln!("Receiver failed");
-          return Err(anyhow::format_err!("Receiver failed"));
-      }
-
-      return Ok(());
-  }
-
-  fn iceoryx2_main() -> anyhow::Result<()> {
-      let args: Vec<String> = std::env::args().collect();
-
-      match args.len() {
-          0 => {
-              eprintln!("Bad command line array");
-          }
-          1 => {
-              return run_both(/*self_path: &str =*/ args[0].as_str());
-          }
-          _ => {
-              match args[1].as_str() {
-                  "send" => {
-                      return run_sender();
-                  }
-                  "receive" => {
-                      return run_receiver();
-                  }
-                  _ => {
-                      return run_both(/*self_path: &str =*/ args[0].as_str());
-                  }
-              };
-          }
-      };
-
-      println!("Hello, world!");
-
-      Ok(())
-  }
 
   fn dir_watcher_main() -> anyhow::Result<()> {
       let mut watched = dir_watcher::dir_watcher::new("/dev/shm".to_string())?;
@@ -607,7 +453,7 @@ metadata_chunk::read_from_prefix
       return Ok(());
   }
 
-  fn main() -> anyhow::Result<()> {
+  fn file_split_merge_main() -> anyhow::Result<()> {
       let res = file_blobs::metadata_file::open("./video.mp4", 16)?;
       let tmp = res.write_file_to_prefix(
           /*path_dir_prefix: &std::path::Path =*/ "/home/asd/dest",
@@ -627,6 +473,10 @@ metadata_chunk::read_from_prefix
       )?;
 
       Ok(())
+  }
+
+  fn main() -> anyhow::Result<()> {
+      file_split_merge_main()
   }
 #+end_src
 
