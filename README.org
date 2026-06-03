@@ -66,6 +66,7 @@ _OUTPUT_: ~file_generator~
   memmap2 = "0.9"
   mimalloc = "0.1"
   tokio = { version = "1", features = ["full"] }
+  zenoh-ext = "1"
   zenoh = { version = "1", features = ["shared-memory", "zenoh-shm"] }
 #+end_src
 
