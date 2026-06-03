@@ -12,14 +12,3 @@ loro = "1"
 memmap2 = "0.9"
 mimalloc = "0.1"
 tokio = { version = "1", features = ["full"] }
-
-iceoryx2-bb-concurrency = { version = "0.8.1", features = ["std"] }
-iceoryx2-bb-container = "0.8.1"
-iceoryx2-bb-derive-macros = "0.8.1"
-iceoryx2-bb-elementary-traits = "0.8.1"
-iceoryx2-bb-elementary = { version = "0.8.1", features = ["std"] }
-iceoryx2-bb-posix = { version = "0.8.1", features = ["std"] }
-iceoryx2-bb-system-types = "0.8.1"
-iceoryx2-cal = { version = "0.8.1", features = ["std"] }
-iceoryx2-log = { version = "0.8.1", features = ["std"] }
-iceoryx2 = { version = "0.8.1", features = ["std"] }
